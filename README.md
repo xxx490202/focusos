@@ -245,14 +245,15 @@ npm run build:win
 - **企业安全软件误报**：将 `focusos-*-setup.exe` 或安装后的整个目录加入信任白名单。
 - 便携版（portable）同样适用上述步骤。
 
-### macOS：提示「无法打开，因为来自身份不明的开发者」
+### macOS：提示「无法打开，因为来自身份不明的开发者」或「FocusOS 已损坏」
 
 自建未签名产物：
 
 ```bash
 # 方式一：右键 App →「打开」→ 在弹窗中再次点「打开」（只需一次）
-# 方式二：命令行移除隔离属性
+# 方式二：命令行移除隔离属性（假定 App 已拖入「应用程序」）
 xattr -dr com.apple.quarantine /Applications/FocusOS.app
+open /Applications/FocusOS.app
 ```
 
 ### 界面全白 / 全黑，什么都没有
