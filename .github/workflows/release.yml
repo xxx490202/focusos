@@ -40,7 +40,7 @@ jobs:
         run: npm run gen:assets
 
       - name: Build (no bundle)
-        run: npm run build && electron-builder --dir --publish never
+        run: npm run build && npx electron-builder --dir --publish never
 
   # ==========================================================
   # 打 tag：产出 5 个安装包

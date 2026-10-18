@@ -195,7 +195,9 @@ describe('平台能力降级 —— 窗口装饰', () => {
     const dark = windowChrome('dark').titleBarOverlay!
     const light = windowChrome('light').titleBarOverlay!
     expect(dark.symbolColor).not.toBe(light.symbolColor)
-    expect(dark.color).not.toBe(light.color)
+    // overlay 底色刻意保持全透明，让自绘背景透出来（见 windowChrome 注释）
+    expect(dark.color).toBe('#00000000')
+    expect(light.color).toBe('#00000000')
   })
 })
 

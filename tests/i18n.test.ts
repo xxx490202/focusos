@@ -26,7 +26,7 @@ function walk(dir: string, out: string[] = []): string[] {
 function stripComments(src: string): string {
   return src
     .replace(/\/\*[\s\S]*?\*\//g, '')
-    .split('\n')
+    .split(/\r?\n/)
     .map((l) => l.replace(/\/\/.*$/, ''))
     .join('\n')
 }
