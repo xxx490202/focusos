@@ -1,0 +1,105 @@
+/* ============================================================
+ *  App.module.css
+ * ============================================================ */
+
+.root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-1);
+  /*
+   * 内容区（侧栏右侧那块）的左边界。
+   * ⭐ 供「要在内容区里居中」的浮层使用 —— 目前是 Toast。
+   *    不能直接用 50vw：那是**整个窗口**的中心，左侧还有 220px 侧栏，
+   *    弹出来会偏左压在侧栏上（用户实测反馈「不要整个页面居中」）。
+   */
+  --content-left: var(--sidebar-w);
+}
+
+/* 收起态：内容区被负边距拉回 x=0 铺满全窗；专注窗口压根没有侧栏 */
+.root[data-sidebar='collapsed'],
+.root[data-focus='true'] {
+  --content-left: 0px;
+}
+
+/*
+ * ⚠️ 这里**不要**再给整个工作台加 padding-top。
+ *    早期把红绿灯留白加在 .workbench 上，等于把侧栏和内容一起往下推，
+ *    窗口顶部露出一条与侧栏不同色的空条（用户实测反馈「没有撑满，上面还有空隙」）。
+ *    红绿灯只压住左侧 80px 宽的范围，因此留白应当由**侧栏内部**承担，
+ *    内容区保持从 y=0 开始 —— 见 Sidebar.module.css 的 .root。
+ */
+.workbench {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/*
+ * 收起态：侧栏本体缩成顶栏那条窗口控件带（见 Sidebar.module.css），
+ * 但它不该占布局宽度 —— 负边距抵消，内容区照旧从窗口最左侧铺满全框
+ * （用户明确要求：收起左栏后所有页面都要占满整个窗口）。
+ */
+.root[data-sidebar='collapsed'] .content {
+  margin-left: calc(-1 * var(--chrome-strip-w));
+}
+
+/* ---------------- 启动占位 ---------------- */
+.boot {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+}
+
+.bootMark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 28px;
+  animation: bootPulse 1.4s ease-in-out infinite;
+}
+
+.bootMark span {
+  width: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.bootMark span:nth-child(1) {
+  height: 14px;
+}
+.bootMark span:nth-child(2) {
+  height: 24px;
+}
+.bootMark span:nth-child(3) {
+  height: 19px;
+}
+
+@keyframes bootPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bootMark {
+    animation: none;
+    opacity: 1;
+  }
+}

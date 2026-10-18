@@ -1,0 +1,252 @@
+/* ============================================================
+ *  Charts.module.css
+ * ============================================================ */
+
+.chartWrap {
+  position: relative;
+  overflow-x: auto;
+}
+
+.tooltip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 3px 8px;
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.axisText {
+  font-size: 9px;
+  fill: var(--text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.legendCell {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.noData {
+  padding: var(--sp-6);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+/* ---------------- 指标卡 ---------------- */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-3);
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-sm);
+}
+
+.metricLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.metricValue {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.metricValue em {
+  margin-left: 3px;
+  font-size: var(--fs-sm);
+  font-style: normal;
+  font-weight: 500;
+  color: var(--text-3);
+}
+
+/* ---------------- 横条图 ---------------- */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.barRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.barLabel {
+  flex-shrink: 0;
+  width: 40px;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.barTrack {
+  flex: 1;
+  min-width: 0;
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.barFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width var(--t-modal) var(--ease-out);
+}
+
+.barFill[data-cat='work'] {
+  background: var(--accent);
+}
+.barFill[data-cat='study'] {
+  background: var(--focus);
+}
+.barFill[data-cat='health'] {
+  background: var(--success);
+}
+.barFill[data-cat='life'] {
+  background: var(--break);
+}
+.barFill[data-cat='other'] {
+  background: var(--text-3);
+}
+
+.barValue {
+  flex-shrink: 0;
+  width: 120px;
+  text-align: right;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+/* ---------------- 时间流向 ---------------- */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.flowRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.flowHour {
+  flex-shrink: 0;
+  width: 20px;
+  text-align: right;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+.flowTrack {
+  flex: 1;
+  min-width: 0;
+  height: 10px;
+  display: flex;
+  gap: 1px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.flowEmpty {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.flowSeg {
+  display: block;
+  height: 100%;
+  min-width: 1px;
+}
+
+.flowSeg[data-cat='work'] {
+  background: var(--accent);
+}
+.flowSeg[data-cat='study'] {
+  background: var(--focus);
+}
+.flowSeg[data-cat='health'] {
+  background: var(--success);
+}
+.flowSeg[data-cat='life'] {
+  background: var(--break);
+}
+.flowSeg[data-cat='other'] {
+  background: var(--text-3);
+}
+
+/* ---------------- 节律 ---------------- */
+.dayparts {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: var(--sp-4);
+  height: 140px;
+}
+
+.daypart {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 100%;
+}
+
+.daypartBar {
+  width: 100%;
+  max-width: 44px;
+  min-height: 3px;
+  border-radius: var(--r-tag) var(--r-tag) 0 0;
+  transition: height var(--t-modal) var(--ease-out);
+}
+
+.daypartValue {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.daypartLabel {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}

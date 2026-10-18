@@ -1,0 +1,387 @@
+/* ============================================================
+ *  WeekView.module.css — 7 天 × 24 小时时间网格
+ * ============================================================
+ *  ⚠️ 表头行（.headRow）与滚动区内的 .rail 必须用**同一套列宽**：
+ *     首列固定 56px（刻度列），其余 7 列等分。
+ *     两处任一改动都要同步，否则表头会和网格错列。
+ * ============================================================ */
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--bg);
+}
+
+/* ---------------- 工具条 ---------------- */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  height: var(--hdr-h);
+  padding: 0 var(--sp-4);
+  /* 左栏收起时给浮在左上角的「展开左栏」按钮让位（见 global.css 的 --hdr-inset） */
+  padding-left: max(var(--sp-4), var(--hdr-inset, 0px));
+  /* Windows：给右上角系统画的 − □ ✕ 让位（见 global.css 的 --wco-right） */
+  padding-right: max(var(--sp-4), var(--wco-right, 0px));
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.barLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.navBtn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-btn);
+  font-size: 16px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.navBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/*
+ * 日期区间 —— 它是**日历入口**，必须看起来可点。
+ * 加圆角与 hover 底色，并在右侧带一个日历图标暗示（图标由 ::after 画）。
+ */
+.rangeBtn {
+  position: relative;
+  height: 26px;
+  padding: 0 var(--sp-3) 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  border: 1px solid var(--divider);
+  transition:
+    background-color var(--t-hover) ease-out,
+    border-color var(--t-hover) ease-out;
+}
+
+.rangeBtn:hover {
+  background: var(--surface-hover);
+  border-color: var(--divider-strong);
+}
+
+.rangeBtn[aria-expanded='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.todayBtn {
+  height: 24px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.todayBtn[data-active='true'] {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.total {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.total strong {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+
+/* ============================================================
+ *  表头行：左上角日历入口 + 周一~周日
+ * ============================================================
+ *  ⚠️ 表头在滚动区**外面**，滚动区里有一条 --scrollbar-w 宽的纵向滚动条，
+ *     它会把 .rail 的内容宽度吃掉一格 —— 表头不让位就会整体错列
+ *     （用户截图反馈「线条没对齐」）。
+ *     因此这里必须留出等宽的右内边距，与 .scroll 的 scrollbar-gutter 对齐。
+ *     两处的宽度都取自 --scrollbar-w，改一处即可同步。
+ * ============================================================ */
+.headRow {
+  display: grid;
+  grid-template-columns: 56px repeat(7, 1fr);
+  align-items: stretch;
+  height: 46px;
+  flex-shrink: 0;
+  padding-right: var(--scrollbar-w, 10px);
+  background: var(--surface);
+  border-bottom: 1px solid var(--divider);
+}
+
+/* 左上角：点击弹出日历 */
+.corner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-right: 1px solid var(--divider);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.corner:hover {
+  background: var(--accent-soft);
+}
+
+.cornerDate {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/*
+ * ⭐ 表头日期格现在是 <button>（可点进那一天），
+ *    必须先把浏览器给按钮的默认外观清干净，否则会多出一圈边框、
+ *    一个灰底和一套自带字体，跟旁边的格子对不齐。
+ */
+.headCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border: none;
+  border-right: 1px solid var(--divider);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+
+.headCell:last-child {
+  border-right: none;
+}
+
+/* 可点的反馈：悬停/聚焦都要看得出来，否则用户仍然以为点不动 */
+.headCell:hover {
+  background: var(--accent-soft);
+}
+
+.headCell:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+.headName {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.headDate {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+
+/* 今天整列强调 */
+.headCell[data-today='true'] {
+  background: var(--focus-soft);
+}
+
+.headCell[data-today='true'] .headName,
+.headCell[data-today='true'] .headDate {
+  color: var(--focus);
+}
+
+/* ============================================================
+ *  时间网格
+ * ============================================================ */
+.scroll {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /*
+   * ⭐ 常驻滚动条留白。若用默认的 auto，滚动条只在内容溢出时出现，
+   *    表头就无法和一个「时有时无」的宽度对齐 —— 会看到列线左右跳。
+   *    stable 让这条留白永远在，与 .headRow 的右内边距一一对应。
+   */
+  scrollbar-gutter: stable;
+}
+
+/* 刻度列 + 7 列网格，两者同处一个滚动流 */
+.rail {
+  display: flex;
+  position: relative;
+}
+
+/* ---------------- 刻度列 ---------------- */
+.gutter {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  background: var(--bg);
+  border-right: 1px solid var(--divider);
+}
+
+/*
+ * 刻度标签。
+ * ⚠️ 绝对定位：时间轴会被内容撑高，刻度的间距不再相等，
+ *    等高格子（原来的 .gutterCell）已经表达不了，只能由 JS 给各自的 top。
+ */
+.gutterLabel {
+  position: absolute;
+  right: var(--sp-2);
+  transform: translateY(-50%);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  user-select: none;
+}
+
+/* ---------------- 网格 ---------------- */
+.grid {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.hourLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 0.5px solid var(--divider);
+}
+
+.col {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-right: 1px solid var(--divider);
+}
+
+.col:last-child {
+  border-right: none;
+}
+
+.col[data-today='true'] {
+  background: color-mix(in srgb, var(--focus) 5%, transparent);
+}
+
+/* ---------------- 任务块 ---------------- */
+.block {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  display: flex;
+  align-items: center;
+  /* 标题占满，确认圆点靠右 —— 用户要求空心圆在「事件框右边」 */
+  justify-content: space-between;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: var(--r-tag);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  /* 可拖动：光标必须给出暗示，否则用户不会想到能拖 */
+  cursor: grab;
+  transition: box-shadow var(--t-hover) ease-out;
+}
+
+/* 正在被拖动的那块：压暗，让位给跟随指针的浮层 */
+.block[data-dragging='true'] {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+
+/* 拖拽浮层：铺满网格但不拦指针，里面的块负责显示 */
+.dragLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.block:hover {
+  box-shadow: var(--shadow-md);
+  z-index: 2;
+}
+
+.block[data-cat='study'] {
+  border-left-color: var(--focus);
+}
+.block[data-cat='health'] {
+  border-left-color: var(--success);
+}
+.block[data-cat='life'] {
+  border-left-color: var(--break);
+}
+.block[data-cat='other'] {
+  border-left-color: var(--text-3);
+}
+
+/*
+ * 待确认态：灰字 + 虚线边框。
+ * ⭐ 与已确认事件必须一眼可分（用户明确要求「应该和已经建立的事件有区分」），
+ *    因此同时改三个维度：文字色、边框样式、左色条 —— 只调颜色区分度不够。
+ */
+.block[data-pending='true'] {
+  background: var(--surface);
+  border-style: dashed;
+  border-left-color: var(--text-3);
+  box-shadow: none;
+}
+
+.blockTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.block[data-pending='true'] .blockTitle {
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+/* ---------------- 空状态：浮在网格之上，不挡住滚动 ---------------- */
+.emptyOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+}
+
+.emptyOverlay > * {
+  pointer-events: auto;
+}

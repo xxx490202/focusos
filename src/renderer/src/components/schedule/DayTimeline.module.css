@@ -1,0 +1,323 @@
+/* ============================================================
+ *  DayTimeline.module.css
+ * ============================================================
+ *  ⚠️ 网格线在浅色主题下必须变淡（--divider），
+ *     深色下才允许微亮，否则显脏。
+ *  ⚠️ Windows 渲染 1px 分割线常显得更硬，用 0.5px 补偿。
+ * ============================================================ */
+
+/* ---------------- 滚动容器 ---------------- */
+/*
+ * ⚠️ 刻度列必须与内容处在**同一个滚动流**里。
+ *    早期实现把 .gutter 放在滚动容器外面并 overflow:hidden，
+ *    结果右侧内容滚动时刻度纹丝不动 —— 滚到 20:00 时左边还写着 08:00，
+ *    刻度与网格线对不上（用户实测反馈「时间轴固定不动」）。
+ *    现在两者同属 .rail，滚一起动。
+ */
+.scroll {
+  height: 100%;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg);
+}
+
+/* 刻度列 + 画布 的横向排布；整体高度 = 24 × hourHeight */
+.rail {
+  display: flex;
+  position: relative;
+}
+
+/* ---------------- 刻度列 ---------------- */
+/*
+ * ⚠️ 必须 position: relative：刻度标签是绝对定位的，
+ *    少了它就会以 .rail 为基准 → 所有标签一路跑到最右边（实测踩过）。
+ */
+.gutter {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  background: var(--bg);
+  border-right: 1px solid var(--divider);
+}
+
+/*
+ * 刻度标签。
+ * ⚠️ 用**绝对定位**而不是等高的行：时间轴会被块撑高，
+ *    刻度的间距不再相等，只能由 JS 给出各自的 top。
+ */
+.gutterLabel {
+  position: absolute;
+  right: var(--sp-2);
+  transform: translateY(-50%);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  user-select: none;
+}
+
+/* ---------------- 画布（网格 + 任务块） ---------------- */
+.canvas {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------------- 网格 ---------------- */
+.hourRow {
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.hourLine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Windows 上 1px 更硬，用 0.5px 补偿 */
+  border-top: 0.5px solid var(--divider);
+}
+
+/* 半点虚线 */
+.halfLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 0.5px dashed var(--divider);
+  opacity: 0.7;
+}
+
+/* ---------------- 任务块 ---------------- */
+.block {
+  position: absolute;
+  display: flex;
+  border-radius: var(--r-tag);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--accent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    box-shadow var(--t-hover) ease-out,
+    border-color var(--t-hover) ease-out,
+    opacity var(--t-panel) var(--ease-out);
+}
+
+/* hover 抬升 z-index，重叠时上层优先 */
+.block:hover {
+  z-index: 5;
+  box-shadow: var(--shadow-md);
+}
+
+.block[data-cat='study'] {
+  border-left-color: var(--focus);
+}
+.block[data-cat='health'] {
+  border-left-color: var(--success);
+}
+.block[data-cat='life'] {
+  border-left-color: var(--break);
+}
+.block[data-cat='other'] {
+  border-left-color: var(--text-3);
+}
+
+.block[data-kind='plan'] {
+  background: color-mix(in srgb, var(--focus) 8%, var(--surface));
+  border-style: dashed;
+}
+
+.block[data-selected='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/*
+ * 待确认态：灰字 + 虚线边框 + 灰色左色条。
+ * ⭐ 用户要求「新建的任务必须和已建立的事件有区分」——
+ *    只调字色区分度不够（尤其在小块上），因此三个维度一起改。
+ */
+.block[data-pending='true'] {
+  border-style: dashed;
+  border-left-color: var(--text-3);
+  box-shadow: none;
+}
+
+.block[data-pending='true'] .blockTitle {
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+.block[data-pending='true'] .blockTime {
+  color: var(--text-3);
+  opacity: 0.85;
+}
+
+/* 待确认圆点的容器：靠右、垂直居中 */
+.blockSide {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-right: 8px;
+  color: var(--text-3);
+}
+
+/*
+ * 「同一时段」标记。
+ *
+ * ⭐ 用 --accent（蓝）而不是 --danger（红）：
+ *    红框读起来像报错，而这只是「这两件事撞在了同一格，已上下排开」的提示
+ *    （用户实测反馈：「同一个时间段的事件框也是蓝色，右上角有注意小标就好」）。
+ *    淡蓝底 + 蓝描边表达「同属一格」，右上角的 ⚠️ 负责表达「注意」。
+ */
+.block[data-conflict='true'] {
+  border-color: var(--accent);
+  border-style: solid;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+/* 右上角的注意小标：保持醒目的警示色，与蓝色描边形成对比 */
+.conflictBadge {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  display: grid;
+  place-items: center;
+  color: var(--danger);
+}
+
+.blockBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 8px;
+  cursor: grab;
+  overflow: hidden;
+}
+
+.blockBody:active {
+  cursor: grabbing;
+}
+
+.blockTitle {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blockTime {
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 底部 8px 把手 */
+.resizeHandle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resizeHandle:hover {
+  background: var(--accent-soft);
+}
+
+/* ---------------- 计划预览态 ---------------- */
+.previewBlock {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border-radius: var(--r-tag);
+  border: 1px dashed var(--focus);
+  background: color-mix(in srgb, var(--focus) 12%, transparent);
+  pointer-events: none;
+}
+
+/* ---------------- 拖入提示 ---------------- */
+.dropHint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 2px solid var(--accent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dropHint span {
+  position: absolute;
+  left: 4px;
+  top: -18px;
+  padding: 1px 6px;
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+/* ---------------- 当前时间线 ---------------- */
+/*
+ * ⭐ 用 --accent（蓝）而不是 --danger（红）。
+ *    红线会和「时间冲突」的红框混淆，看起来像报错
+ *    （用户实测反馈「为啥有一条红线？」→ 直接要求改成蓝色）。
+ */
+.nowLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  border-top: 1.5px solid var(--accent);
+  z-index: 8;
+  pointer-events: none;
+  /* 每秒更新一次位置，配合 1s 线性过渡 = 连续平移（「时间要实时移动」） */
+  transition: top 1s linear;
+}
+
+.nowDot {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/*
+ * 「现在几点」标签。
+ *
+ * ⭐ 位置：挂在**左侧刻度列**里，水平方向靠左于那条线、垂直方向与线齐平，
+ *    右对齐到和 09:00 / 10:00 这些刻度同一条竖线。
+ *    ⚠️ right 用 calc(--sp-2 - 5px)：pill 有 5px 右内边距，
+ *       减掉它，「09:43」这几个数字的右缘才和刻度文本真正对齐。
+ *    ⚠️ 不能贴在圆点右边（画布里）—— 会压住事件块的标题和时间。
+ */
+.nowLabel {
+  position: absolute;
+  right: calc(var(--sp-2) - 5px);
+  transform: translateY(-50%);
+  padding: 1px 5px;
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--on-solid);
+  background: var(--accent);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 9;
+  transition: top 1s linear;
+}

@@ -1,0 +1,84 @@
+/* ============================================================
+ *  App.module.css
+ * ============================================================ */
+
+.root {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-1);
+}
+
+/* macOS 侧栏需要给红绿灯让位 */
+.workbench {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  /* 红绿灯占位由 platform.ts 的 trafficLightPad 注入 */
+  padding-top: var(--traffic-pad, 0);
+}
+
+/* Windows 走 titleBarOverlay，标题栏即内容区顶部 */
+.workbench:global(:root[data-platform='darwin']) {
+  --workbench-top: var(--traffic-pad, 0);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---------------- 启动占位 ---------------- */
+.boot {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+}
+
+.bootMark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 28px;
+  animation: bootPulse 1.4s ease-in-out infinite;
+}
+
+.bootMark span {
+  width: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.bootMark span:nth-child(1) {
+  height: 14px;
+}
+.bootMark span:nth-child(2) {
+  height: 24px;
+}
+.bootMark span:nth-child(3) {
+  height: 19px;
+}
+
+@keyframes bootPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bootMark {
+    animation: none;
+    opacity: 1;
+  }
+}

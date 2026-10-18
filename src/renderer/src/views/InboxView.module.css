@@ -1,0 +1,196 @@
+/* ============================================================
+ *  InboxView.module.css
+ * ============================================================ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--bg);
+}
+
+/* ---------------- 头部 ---------------- */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--hdr-h);
+  padding: 0 var(--sp-4);
+  /* 左栏收起时给浮在左上角的「展开左栏」按钮让位（见 global.css 的 --hdr-inset） */
+  padding-left: max(var(--sp-4), var(--hdr-inset, 0px));
+  /* Windows：给右上角系统画的 − □ ✕ 让位（见 global.css 的 --wco-right） */
+  padding-right: max(var(--sp-4), var(--wco-right, 0px));
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.count {
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-btn);
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.iconBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/* ---------------- 搜索 ---------------- */
+.searchBox {
+  padding: var(--sp-2) var(--sp-4) 0;
+}
+
+.searchBox input {
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+}
+
+.searchBox input:focus {
+  border-color: var(--accent);
+}
+
+/* ---------------- 快速添加 ---------------- */
+.quickAdd {
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.quickInput {
+  width: 100%;
+  height: 34px;
+  padding: 0 36px 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--t-hover) ease-out;
+}
+
+.quickInput:focus {
+  border-color: var(--accent);
+}
+
+/* 悬浮添加按钮 */
+.quickAdd {
+  position: relative;
+}
+
+.addBtn {
+  position: absolute;
+  top: var(--sp-3);
+  right: calc(var(--sp-4) + 4px);
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-btn);
+  color: var(--on-solid);
+  background: var(--accent);
+  transition:
+    filter var(--t-hover) ease-out,
+    opacity var(--t-hover) ease-out;
+}
+
+.addBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.addBtn:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+
+.addBtn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+/* ---------------- 解析候选 chips ---------------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
+  animation: item-in 160ms var(--ease-out);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  padding: 0 4px 0 8px;
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.chip[data-kind='date'] {
+  color: var(--focus);
+  background: var(--focus-soft);
+}
+
+.chip[data-kind='priority'] {
+  color: var(--warning);
+  background: var(--break-soft);
+}
+
+.chipX {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  color: currentColor;
+  opacity: 0.6;
+  transition: opacity var(--t-hover) ease-out;
+}
+
+.chipX:hover {
+  opacity: 1;
+}
+
+/* ---------------- 列表 ---------------- */
+.list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-3) var(--sp-4) var(--sp-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}

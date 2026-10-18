@@ -1,0 +1,319 @@
+/* ============================================================
+ *  DayView.module.css
+ * ============================================================ */
+
+.root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--bg);
+}
+
+/* ---------------- 工具条 ---------------- */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  height: var(--hdr-h);
+  padding: 0 var(--sp-4);
+  /*
+   * ⭐ 左栏收起后侧栏宽度为 0，「展开左栏」按钮浮在这条顶栏的左上角，
+   *    日期翻页键必须让开它 —— 让位量 --hdr-inset 由 global.css 派生。
+   */
+  padding-left: max(var(--sp-4), var(--hdr-inset, 0px));
+  /* Windows：给右上角系统画的 − □ ✕ 让位，否则会压住「生成番茄计划」等按键 */
+  padding-right: max(var(--sp-4), var(--wco-right, 0px));
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.dateNav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.navBtn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-btn);
+  font-size: 16px;
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.navBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/*
+ * 日期按钮 —— 原先是 <input type="date">（系统原生控件，弹的是 Chromium
+ * 自带的日历，样式完全不受主题控制）。现在换成按钮，弹出的日历与周视图
+ * 是**同一个** CalendarPanel。
+ */
+.dateInput {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  border: 1px solid transparent;
+  transition:
+    background-color var(--t-hover) ease-out,
+    border-color var(--t-hover) ease-out;
+}
+
+.dateInput:hover {
+  background: var(--surface-2);
+  border-color: var(--divider);
+}
+
+.dateInput[aria-expanded='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.todayBtn {
+  height: 24px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.barRight {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--on-solid);
+  background: var(--accent);
+  transition: filter var(--t-hover) ease-out;
+}
+
+.actionBtn:hover {
+  filter: brightness(1.08);
+}
+
+.actionBtn:active {
+  transform: scale(0.97);
+}
+
+.zoomGroup {
+  display: flex;
+  gap: 1px;
+  padding: 2px;
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+}
+
+.zoomBtn {
+  height: 22px;
+  padding: 0 var(--sp-2);
+  border-radius: 5px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.zoomBtn[data-active='true'] {
+  color: var(--text-1);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------------- 计划确认条 ---------------- */
+.planBar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 40px;
+  padding: 0 var(--sp-4);
+  color: var(--focus);
+  background: var(--focus-soft);
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.planBarText {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.planBarOps {
+  display: flex;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.planConfirm,
+.planDiscard {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  transition: filter var(--t-hover) ease-out;
+}
+
+.planConfirm {
+  color: var(--on-solid);
+  background: var(--focus);
+}
+
+.planConfirm:hover {
+  filter: brightness(1.08);
+}
+
+.planDiscard {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.planDiscard:hover {
+  background: var(--surface-hover);
+}
+
+/* ---------------- 主体 ---------------- */
+.body {
+  flex: 1;
+  min-height: 0;
+}
+
+.emptyOverlay {
+  position: absolute;
+  /* 与顶栏同高（改顶栏高度时这里必须一起走） */
+  inset: var(--hdr-h) 0 0 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.emptyOverlay > * {
+  pointer-events: auto;
+}
+
+/* ---------------- 模态框 ---------------- */
+.modalMask {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+}
+
+.modal {
+  width: 420px;
+  padding: var(--sp-5);
+  border-radius: var(--r-modal);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: modal-in var(--t-modal) var(--ease-out);
+}
+
+.modalTitle {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: var(--sp-2);
+}
+
+.modalDesc {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  margin-bottom: var(--sp-4);
+}
+
+.fieldRow {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+
+.field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.field span {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.field input {
+  height: 32px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+}
+
+.modalOps {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+
+.btnGhost,
+.btnPrimary {
+  height: 30px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: filter var(--t-hover) ease-out;
+}
+
+.btnGhost {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.btnPrimary {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.btnPrimary:hover {
+  filter: brightness(1.08);
+}

@@ -1,0 +1,427 @@
+/* ============================================================
+ *  FocusView.module.css
+ * ============================================================
+ *  ⭐ 背景处理纯 CSS：object-fit: cover + gradient 遮罩 + filter 模糊，
+ *     不调用任何外部图像命令。
+ * ============================================================ */
+
+.root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+
+/* ---------------- 窗口拖拽条 ----------------
+ * 只留顶部一条（与页面顶栏同高）作为窗口拖拽区。
+ * ⚠️ 不要再把 data-drag 挂到 .root 上：整页都是拖拽区时，
+ *    pointerdown 会在系统层被当成拖窗口吞掉，点击涟漪收不到事件
+ *    （用户实测反馈「点击涟漪没反应」）。
+ * 高度与页面顶栏同源（--hdr-h），不写死像素。 */
+.dragStrip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--hdr-h);
+}
+
+/* ---------------- 背景层 ---------------- */
+.bgImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* ⭐ 本地图片全铺 */
+  object-fit: cover;
+  filter: blur(var(--bg-blur, 0px));
+  transform: scale(1.02);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/*
+ * 收起态：内容区不再为窗口控件带让位（App.module.css 用负边距把它拉回 x=0），
+ * 背景三层照旧 inset:0 铺满整窗，**不需要**任何 left/width 补偿 ——
+ * 早先为「内容区右移 115px」补过 left/width，反而让照片溢出，
+ * 把根节点的拖拽区拖到了 x=0 上（真实点击被吞），这里一并撤掉。
+ */
+
+/*
+ * ⭐⭐ 收起态下专注页根节点必须退出拖拽区（与 global.css 的
+ *    [data-sidebar='collapsed'] main [data-drag] 同一条规则，
+ *    这里再写一遍是给这个踩过的坑留个就地标记）：
+ *    它的拖拽区一旦铺到左上角，那颗「展开左栏」按钮的真实点击
+ *    就会被当成拖窗口吞掉，而合成点击测不出来。
+ */
+:global([data-sidebar='collapsed']) .root {
+  -webkit-app-region: no-drag;
+}
+
+/* 可读性遮罩：保证浅色照片上的文字可读 */
+.bgOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, var(--bg-overlay, 0.3)) 0%,
+    rgba(0, 0, 0, var(--bg-overlay, 0.3)) 100%
+  );
+  pointer-events: none;
+}
+
+/* 暗角 */
+.bgVignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 calc(180px * var(--bg-vignette, 0)) rgba(0, 0, 0, calc(var(--bg-vignette, 0) * 0.8));
+}
+
+/* ---------------- 中心列 ---------------- */
+.center {
+  position: relative;
+  z-index: var(--z-content);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+  width: 100%;
+  padding: var(--sp-6);
+}
+
+/* ---------------- 阶段徽章 ---------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--bg-text, var(--text-1));
+  background: var(--surface-2);
+  transition:
+    background-color var(--t-theme) ease,
+    color var(--t-theme) ease;
+}
+
+.badge[data-phase='focus'] {
+  color: var(--focus);
+  background: var(--focus-soft);
+}
+
+.badge[data-phase='shortBreak'],
+.badge[data-phase='longBreak'] {
+  color: var(--break);
+  background: var(--break-soft);
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badgePaused {
+  padding-left: var(--sp-2);
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+/* 徽章 + 右侧重置键 */
+.badgeRow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  transition: opacity var(--t-panel) ease;
+}
+
+.badgeReset {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  /*
+   * ⚠️ 这里**不能**用 --bg-text：那是给「直接压在照片上」的元件算的
+   *    自动取色（亮照片→近黑、暗照片→白）。本按钮自带不透明底
+   *    --surface-2，亮照片 + 深色主题时会取到近黑色 —— 黑图标压在
+   *    #3a3a3c 的深灰圆上，几乎看不见（用户实测反馈「重置键看不清」）。
+   *    图标有确定的底，就跟着主题文字色走。
+   */
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out,
+    transform 100ms ease-out;
+}
+
+/*
+ * ⭐ 把命中区域撑到 44×44（视觉尺寸仍是 30）。
+ *
+ * ⚠️ 原先只有 30×30 且 :active 带 transform: scale(0.94) ——
+ *    在圆边按下时按钮会先缩小，指针随即落到按钮之外，
+ *    浏览器于是把 click 判给共同祖先（.badgeRow）而不是按钮本身，
+ *    表现就是「点十次有三四次没反应」。放大热区 + 去掉缩放后消失。
+ *    这里用透明伪元素扩展：不改变布局，也不影响与徽章的间距。
+ */
+.badgeReset::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+}
+
+.badgeReset:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/* 按下只做轻微的颜色加深与旋转；绝不再缩放（缩放会吃掉边缘点击） */
+.badgeReset:active {
+  transform: rotate(-40deg);
+}
+
+/* ---------------- 倒计时 ---------------- */
+/*
+ * ⭐ 拆成「分」「秒」两个可点区域（用户要求：点数字就能设置时间）。
+ *    用 flex 排一行，冒号单独一个 span —— 这样两段能各自算自己的矩形，
+ *    弹出选择器时才能对准被点的那一段。
+ */
+.countdown {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--bg-text, var(--text-1));
+  transition: color var(--t-theme) ease;
+  /* ⭐ 沉浸淡入：blur(8px) → 0 */
+  animation: focus-countdown-in 420ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/*
+ * 分 / 秒 的可点区域。
+ * ⚠️ 刻意**不做** hover 变色或下划线：这行数字是整页视觉重心，
+ *    加装饰会让它在背景图上显得脏。只在点开滚轮时用一次极淡的底色提示。
+ */
+.seg {
+  display: inline-block;
+  padding: 0 2px;
+  border-radius: var(--r-card);
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: inherit;
+  line-height: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.seg:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.seg[data-active='true'] {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+.colon {
+  padding: 0 2px;
+  /* 冒号本身不可点，避免在它上面点了个寂寞 */
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/*
+ * 心流模式下的只读数字。
+ * ⚠️ 刻意与 .seg 保持完全一致的排版，只是没有 hover / 点击态 ——
+ *    切换模式时数字不应该跳动。
+ */
+.segStatic {
+  display: inline-block;
+  padding: 0 2px;
+}
+
+/* 心流提示（「已专注 N 分钟」）：解释为什么数字在往上走 */
+.flowHint {
+  margin-top: var(--sp-3);
+  padding: 3px 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.02em;
+  color: var(--bg-text, var(--text-1));
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  transition: color var(--t-theme) ease;
+}
+
+.root[data-compact='true'] .countdown {
+  animation-duration: 300ms;
+}
+
+/* ---------------- 环形中心的开始 / 暂停主按钮 ---------------- */
+/*
+ * 只画图标，**不再有实心底圆**（用户反馈绿色圆盘太抢眼）。
+ * 点击热区仍保留一个较大的透明圆，保证好点；
+ * 仅在 hover 时浮出一层极淡的底，给出可点击的反馈。
+ */
+.ringAction {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--bg-text, var(--text-1));
+  background: transparent;
+  /* ⚠️ RingProgress 的 .center 是 pointer-events:none（避免挡住环的点击），
+     圆心按钮必须显式把它打开，否则点不到。 */
+  pointer-events: auto;
+  transition:
+    background-color var(--t-hover) ease-out,
+    transform 100ms ease-out;
+}
+
+.ringAction:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  transform: scale(1.04);
+}
+
+.ringAction:active {
+  transform: scale(0.96);
+}
+
+.ringAction:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---------------- 次级控制按钮 ---------------- */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.ctrlBtn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out,
+    transform 100ms ease-out;
+}
+
+.ctrlBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/*
+ * 主操作（心流模式的「结束这一轮」）。
+ * 它是这一行里唯一会改变流程的按钮，给一个实心底把它和其它工具键分开。
+ */
+.ctrlBtn[data-accent='true'] {
+  color: var(--on-solid);
+  background: var(--focus);
+}
+
+.ctrlBtn[data-accent='true']:hover {
+  background: color-mix(in srgb, var(--focus) 84%, #fff);
+  color: var(--on-solid);
+}
+
+.ctrlBtn:active {
+  /* 按钮 active: scale(0.97) */
+  transform: scale(0.97);
+}
+
+/* ---------------- 当前任务胶囊 ---------------- */
+.taskPill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  max-width: 460px;
+  padding: 7px 16px;
+  border-radius: var(--r-pill);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.taskPillTitle {
+  /* 不依赖固定文本宽度，两平台字体差异不破坏布局 */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.taskPillMeta {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--focus);
+}
+
+/* ---------------- 今日进度点阵 ---------------- */
+.dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: 420px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--divider-strong);
+  transition:
+    background-color var(--t-panel) var(--ease-out),
+    transform var(--t-panel) var(--ease-out);
+}
+
+.dot[data-filled='true'] {
+  background: var(--focus);
+}
+
+.dot[data-active='true'] {
+  background: var(--focus);
+  transform: scale(1.4);
+  animation: spin 1.6s linear infinite;
+}
+
+/*
+ * ⚠️ 背景模式下原本底部有一颗「✖ Original BG」退出按钮，已按用户要求删除。
+ *    现在退出背景模式走「设置 → 主题 → 背景模式 → 启用背景」开关，
+ *    专注视图在背景模式下保持完全沉浸（只有徽章 / 倒计时 / 环形与圆心按钮）。
+ */
+
+/*
+ * ⚠️ 右上角的「小窗 / 全屏」切换按钮已按用户要求删除（那颗悬在 − □ ✕ 下方的方块）。
+ *    切换仍可走 Esc / F 快捷键，所以样式一并移除，避免留下无主的选择器。
+ */
+
+/* 全屏态隐藏红绿灯以外的干扰：小窗不显示 */
+.root[data-compact='true'] .dots,
+.root[data-compact='true'] .taskPill {
+  display: none;
+}
+
+.root[data-compact='true'] .center {
+  gap: var(--sp-3);
+}

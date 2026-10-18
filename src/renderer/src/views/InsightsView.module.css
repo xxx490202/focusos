@@ -1,0 +1,193 @@
+/* ============================================================
+ *  InsightsView.module.css
+ * ============================================================ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--hdr-h);
+  padding: 0 var(--sp-4);
+  /* 左栏收起时给浮在左上角的「展开左栏」按钮让位（见 global.css 的 --hdr-inset） */
+  padding-left: max(var(--sp-4), var(--hdr-inset, 0px));
+  /* Windows：给右上角系统画的 − □ ✕ 让位（见 global.css 的 --wco-right） */
+  padding-right: max(var(--sp-4), var(--wco-right, 0px));
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.granularity {
+  display: flex;
+  gap: 1px;
+  padding: 2px;
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+}
+
+.granBtn {
+  height: 24px;
+  padding: 0 var(--sp-3);
+  border-radius: 5px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.granBtn[data-active='true'] {
+  color: var(--text-1);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-4);
+}
+
+/* 习惯打卡条：与下面的统计网格留出间距 */
+.habitWrap {
+  margin-bottom: var(--sp-5);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-4);
+}
+
+.full {
+  grid-column: 1 / -1;
+}
+
+.sectionTitle {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+/* ⭐ 浅色主题下不能纯白卡片压纯白底，靠 shadow-sm + divider 制造层次 */
+.card {
+  padding: var(--sp-4);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ---------------- 排行榜 ---------------- */
+.rank {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.rankItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-1) 0;
+}
+
+.rankIndex {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+  background: var(--surface-2);
+}
+
+.rankItem:first-child .rankIndex {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.rankTitle {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankValue {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+/* ---------------- 周报 ---------------- */
+.report {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: var(--sp-3);
+  margin-bottom: var(--sp-3);
+  border-radius: var(--r-btn);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+  color: var(--text-2);
+  background: var(--surface-2);
+  white-space: pre-wrap;
+  user-select: text;
+}
+
+.reportOps {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btnGhost,
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  transition: filter var(--t-hover) ease-out;
+}
+
+.btnGhost {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.btnPrimary {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.btnPrimary:hover,
+.btnGhost:hover {
+  filter: brightness(1.06);
+}

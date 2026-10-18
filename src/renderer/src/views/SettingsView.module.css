@@ -1,0 +1,498 @@
+/* ============================================================
+ *  SettingsView.module.css
+ * ============================================================ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--bg);
+}
+
+/* ---------------- 顶栏 ----------------
+ * 与其它页面（洞察 / 今日日程 / 周视图）保持一致的高度与分隔线，
+ * 同时也是窗口拖拽区（[data-drag] 规则见 global.css）。
+ */
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  height: var(--hdr-h);
+  padding: 0 var(--sp-4);
+  /* 左栏收起时给浮在左上角的「展开左栏」按钮让位（见 global.css 的 --hdr-inset） */
+  padding-left: max(var(--sp-4), var(--hdr-inset, 0px));
+  /* Windows：给右上角系统画的 − □ ✕ 让位（见 global.css 的 --wco-right） */
+  padding-right: max(var(--sp-4), var(--wco-right, 0px));
+  border-bottom: 1px solid var(--divider);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+/* 顶栏右侧显示当前分组名，避免「我在哪一组」要靠左栏高亮去找 */
+.barHint {
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+/* 左栏 + 右侧面板的水平区 */
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+/* ---------------- 左侧分组 ---------------- */
+.nav {
+  flex-shrink: 0;
+  width: 150px;
+  padding: var(--sp-3);
+  border-right: 1px solid var(--divider);
+  background: var(--surface);
+  overflow-y: auto;
+}
+
+.navItem {
+  width: 100%;
+  height: 30px;
+  padding: 0 var(--sp-2);
+  margin-bottom: 2px;
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  text-align: left;
+  color: var(--text-2);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.navItem:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.navItem[data-active='true'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* ---------------- 右侧面板 ---------------- */
+.panel {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--sp-5) var(--sp-6) var(--sp-8);
+}
+
+.section {
+  margin-bottom: var(--sp-6);
+}
+
+.sectionTitle {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.sectionBody {
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  min-height: 40px;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--divider);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLabel {
+  flex-shrink: 0;
+  font-size: var(--fs-body);
+  color: var(--text-1);
+}
+
+.rowControl {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.rowWithHint {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
+  color: var(--warning);
+}
+
+/*
+ * 纯说明文字（不是警告）。
+ * ⚠️ 不要拿 .hint 当说明用：它是 --warning 黄色，表示「注意」，
+ *    一段中性的解释文字配上黄色会让人以为设置有问题。
+ */
+.note {
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-3);
+}
+
+/* 枚举型设置的分段按钮 */
+.choiceGroup {
+  display: inline-flex;
+  gap: var(--sp-1);
+}
+
+.choiceBtn {
+  height: 26px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.choiceBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.choiceBtn[data-active='true'] {
+  color: var(--on-solid);
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.unit,
+.value {
+  flex-shrink: 0;
+  /*
+   * ⭐ 固定宽度 + 右对齐：让「滑块 + 数值」「数字框 + 单位」这几行的控件
+   *    左右缘对齐。此前宽度随文字浮动（"1.15×" 比 "0%" 宽一截），
+   *    同一列里的滑块位置就会跟着飘 —— 雨点大小那行比上下几行凸出 20px
+   *    （用户反馈「这边的调节要对齐」）。
+   */
+  min-width: 42px;
+  text-align: right;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+.dash {
+  color: var(--text-3);
+}
+
+.note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  border-bottom: 1px solid var(--divider);
+}
+
+.path {
+  padding: var(--sp-2) var(--sp-4);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  border-bottom: 1px solid var(--divider);
+  word-break: break-all;
+  user-select: text;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+}
+
+/* ---------------- 控件 ---------------- */
+/*
+ * 分段控件（主题 / 语言）也要和其他设置项一样**靠右**。
+ * 早先它直接铺满 .sectionBody，控件被拉到整行宽、位置在左，
+ * 与「标签在左、控件在右」的其它行不一致（用户反馈「选项都靠右」）。
+ * 现在外面套一层 .segRow 把控件推到右边。
+ */
+.segRow {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.segGroup {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+}
+
+.segBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 var(--sp-3);
+  border-radius: 5px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+/* 悬浮高亮：未选中项也要有明确的鼠标反馈 */
+.segBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.segBtn[data-active='true'] {
+  color: var(--text-1);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.segBtn[data-active='true']:hover {
+  background: var(--surface);
+}
+
+/* 开关 */
+.toggle {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: var(--r-pill);
+  background: var(--divider-strong);
+  transition: background-color var(--t-panel) var(--ease-out);
+}
+
+.toggle[data-on='true'] {
+  background: var(--success);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--on-solid);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--t-panel) var(--ease-out);
+}
+
+.toggle[data-on='true'] .toggleKnob {
+  transform: translateX(16px);
+}
+
+/* 上级开关关闭 → 置灰且不可点（如「启用背景」关掉时的「雨点效果」） */
+.toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* 输入 */
+.numberInput,
+.timeInput {
+  height: 28px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition: border-color var(--t-hover) ease-out;
+}
+
+.numberInput {
+  width: 72px;
+}
+
+.timeInput {
+  width: 110px;
+}
+
+.numberInput:focus,
+.timeInput:focus {
+  border-color: var(--accent);
+}
+
+.range {
+  width: 140px;
+  accent-color: var(--accent);
+}
+
+/* 按钮 */
+.btnGhost,
+.btnDanger,
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  transition: filter var(--t-hover) ease-out;
+}
+
+.btnGhost {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.btnPrimary {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.btnDanger {
+  color: var(--on-solid);
+  background: var(--danger);
+}
+
+.btnGhost:hover,
+.btnPrimary:hover,
+.btnDanger:hover {
+  filter: brightness(1.06);
+}
+
+/* 背景缩略图 */
+.thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+}
+
+/*
+ * 缩略图本身只负责显示与拖拽排序。
+ * ⚠️ 删除**不再**用右上角那个小角标 —— 它压在一个 draggable 容器里，
+ *    按下时会被浏览器的拖拽手势吃掉，click 根本不触发（用户反馈「点了没反应」）。
+ *    现在改成右键 → 指针位置弹出菜单 → 二次确认，与今日日程一致。
+ */
+.thumb {
+  position: relative;
+  width: 72px;
+  height: 46px;
+  border-radius: var(--r-btn);
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  cursor: grab;
+  transition:
+    opacity var(--t-hover) ease-out,
+    border-color var(--t-hover) ease-out,
+    transform var(--t-hover) ease-out;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  /* ⭐ 纯 CSS 缩放，禁止外部命令 */
+  object-fit: cover;
+  /* 拖拽缩略图时不要让浏览器拖出图片幽灵 */
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* 关闭轮播时，第一张才是真正生效的背景 → 蓝色描边标出来 */
+.thumb[data-active='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* 第一张永远带「默认」角标，表明它就是不轮播时显示的那张 */
+.thumbFirst {
+  position: absolute;
+  left: 2px;
+  bottom: 2px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--on-solid);
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+/* 拖拽排序反馈 */
+.thumb[data-dragging='true'] {
+  opacity: 0.4;
+}
+
+.thumb[data-over='true'] {
+  border-color: var(--accent);
+  transform: scale(1.06);
+}
+
+/*
+ * 缩略图分组标题（内置壁纸 / 我添加的）。
+ * ⭐ flex-basis:100% —— .thumbs 是 flex-wrap 容器，占满一行即强制换行，
+ *    这样两组的缩略图不会被混排到一起，也不用额外套一层容器
+ *    （套了的话 .thumbs 的内边距会叠成双份）。
+ */
+.thumbsLabel {
+  flex-basis: 100%;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--text-3);
+}
+
+/* 第二组标题与上一组拉开距离（第一组紧跟「导入图片」那一行，不用额外空隙） */
+.thumbsLabel:not(:first-child) {
+  margin-top: var(--sp-3);
+}
+
+/* 键位 */
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--divider-strong);
+  box-shadow: 0 1px 0 var(--divider-strong);
+}

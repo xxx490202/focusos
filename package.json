@@ -1,0 +1,45 @@
+{
+  "name": "focusos",
+  "version": "1.0.0",
+  "description": "FocusOS — 把「今天要做什么」和「现在正在做什么」统一管理的时间容器",
+  "main": "./out/main/index.cjs",
+  "author": "FocusOS",
+  "copyright": "Copyright © 2026 FocusOS",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "start": "electron-vite preview",
+    "build": "electron-vite build",
+    "build:app": "npm run build && bash scripts/build-app.sh",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:mac": "npm run build && electron-builder --mac --publish never",
+    "build:win": "npm run build && electron-builder --win --publish never",
+    "build:dir": "npm run build && electron-builder --dir --publish never",
+    "gen:assets": "node scripts/gen-assets.mjs && node scripts/gen-tray.mjs",
+    "gen:icon": "node scripts/extract-icon.mjs",
+    "postinstall": "node scripts/gen-assets.mjs && node scripts/gen-tray.mjs"
+  },
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "zod": "^3.25.76",
+    "zustand": "^4.5.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/react": "^18.3.20",
+    "@types/react-dom": "^18.3.6",
+    "@vitejs/plugin-react": "^4.4.1",
+    "electron": "^44.7.2",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^2.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.19",
+    "vitest": "^2.1.9"
+  }
+}

@@ -1,0 +1,134 @@
+/* ============================================================
+ *  themes.css — [data-theme] 变量覆盖块
+ * ============================================================
+ *  切换主题时只换这里的令牌值，组件零改动。
+ *  浅色主题呼应项目配图：冷蓝调白花。
+ * ============================================================ */
+
+/* ------------------------------------------------------------
+ *  深色主题（默认，夜间）
+ * ---------------------------------------------------------- */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #1c1c1e; /* 窗口底 */
+  --surface: #2c2c2e; /* 卡片 / 侧栏 */
+  --surface-2: #3a3a3c; /* 卡片内嵌 / hover */
+  --surface-hover: #48484a;
+  --overlay: rgba(0, 0, 0, 0.55);
+
+  --text-1: #ffffff;
+  --text-2: #c7c7cc;
+  /* ⚠️ 三级文字用 #a5a5a9 而非系统灰 #8e8e93：
+     后者压在最浅的卡片底 --surface-2 上只有 3.48:1，不达标。
+     提亮后为 4.62:1（该令牌全项目被当文字色用了 34 处，必须达标）。 */
+  --text-3: #a5a5a9;
+  --divider: rgba(255, 255, 255, 0.1);
+  --divider-strong: rgba(255, 255, 255, 0.18);
+
+  /* --accent 身兼两职：暗底上的**文字色**，以及按钮的**实心填充**。
+     原来用系统蓝 #0a84ff，当文字只有 3.11–4.66:1（surface-2 上仅 3.11）。
+     提亮到 #53a9ff 后两个角色同时达标：作文字 4.59 / 5.63 / 6.88，
+     作填充时上面的近黑字 7.32。 */
+  --accent: #53a9ff; /*  4.59:1（vs surface-2） */
+  --accent-soft: rgba(83, 169, 255, 0.16);
+  --focus: #30d158;
+  --focus-soft: rgba(48, 209, 88, 0.16);
+  --break: #ff9f0a;
+  --break-soft: rgba(255, 159, 10, 0.16);
+  /* 同 --accent：既当文字色又当实心填充。
+     系统红 #ff453a 作文字只有 3.33–4.99:1，提亮到 #ff8079 后
+     作文字 4.66 / 5.72 / 6.98，作填充时近黑字 7.43。 */
+  --danger: #ff8079; /*  4.66:1（vs surface-2） */
+  --warning: #ffd60a; /*  8.05:1 */
+  --success: #30d158; /*  5.63:1 */
+
+  /* ⚠️ 深色主题的前景**不能用白色**：这一套语义色是为暗底设计的亮色，
+     白字压上去实测只有 1.41–3.65:1（--warning 1.41、--focus 2.02），完全读不了。
+     改用近黑后升到 4.97–12.83:1，六个实心色全部达标。
+     这与 Material 3 在深色主题下「on-primary 取深色」的做法一致。 */
+  --on-solid: #14161a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.44);
+  --scrim: rgba(0, 0, 0, 0.5);
+
+  /* 平台材质补偿：mac vibrancy 与 Win acrylic 强度不同，
+     靠调整侧栏叠加透明度让两平台观感一致 */
+  --sidebar-alpha: 1;
+}
+
+/* ------------------------------------------------------------
+ *  浅色主题（冷蓝调白花）
+ *
+ *  四个必做细节：
+ *  1. 浅色下不能用纯白卡片压在纯白底上 → 靠 --shadow-sm + --divider 制造层次
+ *  2. ⭐ **全部语义色对最浅的底（#ffffff）对比度 ≥ 4.5:1**。
+ *     注意这不只是「好看」：这些令牌在浅色主题下被大量当**文字色**用
+ *     （--text-3 34 处、--accent 10 处、--focus 8 处…），
+ *     低于 4.5:1 就是实打实的可读性缺陷。达标值由 tests/contrast.test.ts 锁死。
+ *  3. 所有色相保持不变，只压亮度 —— 视觉上仍是同一套「冷蓝调」，
+ *     但顺带修好了一个隐藏问题：白字压在旧值上也不达标
+ *     （旧绿 3.15:1、旧橙 2.95:1、旧蓝 4.03:1），压暗后分别变成 4.59 / 4.60 / 4.58。
+ *  4. 时间轴网格线用 --divider（淡），深色下才允许微亮
+ * ---------------------------------------------------------- */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f2f3f7; /* macOS systemGroupedBackground */
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --surface-hover: #edeff3;
+  --overlay: rgba(255, 255, 255, 0.7);
+
+  /* 对比度一律以**最暗的底**（--bg #f2f3f7）为准 —— 深色文字压在更暗的底色上
+     对比度最低，只对着 #ffffff 调会漏掉这一档（实测差 0.4 左右）。 */
+  --text-1: #14161a; /* 16.33:1 */
+  --text-2: #4b5058; /*  7.32:1 */
+  --text-3: #696e78; /*  4.62:1  ← 由 #8a9099 压暗（原对 #f2f3f7 仅 2.90:1） */
+  --divider: rgba(0, 0, 0, 0.08);
+  --divider-strong: rgba(0, 0, 0, 0.14);
+
+  --accent: #006ade; /*  4.60:1  ← 由 #007aff 压暗（原 3.62:1） */
+  --accent-soft: rgba(0, 106, 222, 0.12);
+  --focus: #177e38; /*  4.64:1  ← 由 #1fa84b 压暗（原 2.80:1） */
+  --focus-soft: rgba(23, 126, 56, 0.13);
+  --break: #a95808; /*  4.63:1  ← 由 #e8790c 压暗（原 2.64:1） */
+  --break-soft: rgba(169, 88, 8, 0.13);
+  --danger: #d70015; /*  4.86:1  原值已达标，不动 */
+  --warning: #b25000; /*  4.69:1  深色而非亮黄，浅底可读 */
+  --success: #177e38; /*  4.64:1  与 --focus 同值 */
+
+  /* 压在实心语义色上的前景色。浅色主题的色块都足够深，用白字，
+     对 accent / focus / break / danger / warning 分别为 5.10 / 5.17 / 5.11 / 5.39 / 5.20:1。
+     ⚠️ 组件里不要写死 #fff，一律用它。 */
+  --on-solid: #ffffff;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 16px 40px rgba(15, 23, 42, 0.12);
+  --scrim: rgba(15, 23, 42, 0.22);
+
+  --sidebar-alpha: 1;
+}
+
+/* ------------------------------------------------------------
+ *  主题切换过渡
+ *  只给background-color / border-color / color，
+ *  明确禁用布局类属性（width/height/top/left…）避免抖动。
+ * ---------------------------------------------------------- */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color var(--t-theme) ease,
+    border-color var(--t-theme) ease,
+    color var(--t-theme) ease,
+    fill var(--t-theme) ease !important;
+  transition-property: background-color, border-color, color, fill;
+  transition-duration: var(--t-theme);
+  transition-timing-function: ease;
+  animation: none !important;
+}

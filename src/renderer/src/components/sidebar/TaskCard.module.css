@@ -1,0 +1,241 @@
+/* ============================================================
+ *  TaskCard.module.css
+ * ============================================================ */
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-3) var(--sp-3) var(--sp-4);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  /* 列表项 stagger 进场 */
+  animation: item-in 220ms cubic-bezier(0.32, 0.72, 0, 1) backwards;
+  transition:
+    background-color var(--t-hover) ease-out,
+    border-color var(--t-hover) ease-out;
+}
+
+.card:hover {
+  background: var(--surface-2);
+}
+
+.card:active {
+  /* 卡片点击 scale(0.99) */
+  transform: scale(0.99);
+}
+
+.card[data-status='done'] {
+  opacity: 0.55;
+}
+
+.card[data-status='archived'] {
+  opacity: 0.4;
+}
+
+/* ---------------- 优先级色条 ---------------- */
+.priorityBar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+}
+
+.card[data-priority='0'] .priorityBar {
+  background: var(--text-3);
+}
+.card[data-priority='1'] .priorityBar {
+  background: var(--warning);
+}
+.card[data-priority='2'] .priorityBar {
+  background: var(--danger);
+}
+
+/* ---------------- 完成勾选 ---------------- */
+.check {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: 1.6px solid var(--divider-strong);
+  color: var(--on-solid);
+  transition:
+    background-color var(--t-hover) ease-out,
+    border-color var(--t-hover) ease-out;
+}
+
+.check:hover {
+  border-color: var(--success);
+}
+
+.check[data-done='true'] {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+/* ---------------- 主体 ---------------- */
+.body {
+  flex: 1;
+  /* ⭐ 不依赖固定文本宽度，两平台字体差异不破坏布局 */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pomodoros {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--focus);
+}
+
+/*
+ * 待确认标签。
+ * ⭐ 收件箱里同时躺着「完全没排期」和「已排时段但没点确认」两种任务，
+ *    不给标识用户分不清哪个已经上了时间轴 —— 因此这里用与时间轴灰块
+ *    同一套视觉语言（灰字 + 虚线描边）呼应。
+ */
+.pendingTag {
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  border: 1px dashed var(--text-3);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* ---------------- checklist 进度 ---------------- */
+.checklist {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.checklistText {
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-3);
+}
+
+.checklistBar {
+  flex: 1;
+  max-width: 120px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: var(--divider);
+  overflow: hidden;
+}
+
+.checklistFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--success);
+  transition: width var(--t-panel) var(--ease-out);
+}
+
+/* ---------------- 元信息 ---------------- */
+.meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.tag {
+  padding: 2px 7px;
+  border-radius: var(--r-tag);
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+
+.tag[data-cat='work'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.tag[data-cat='study'] {
+  color: var(--focus);
+  background: var(--focus-soft);
+}
+.tag[data-cat='health'] {
+  color: var(--success);
+  background: var(--focus-soft);
+}
+.tag[data-cat='life'] {
+  color: var(--break);
+  background: var(--break-soft);
+}
+
+.priority {
+  font-weight: 600;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ---------------- 操作 ---------------- */
+.ops {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity var(--t-hover) ease-out;
+}
+
+.card:hover .ops {
+  opacity: 1;
+}
+
+.opBtn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-tag);
+  color: var(--text-3);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.opBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.opBtn[data-danger='true']:hover {
+  background: var(--danger);
+  color: var(--on-solid);
+}

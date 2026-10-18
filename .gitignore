@@ -1,0 +1,29 @@
+# 依赖
+node_modules/
+
+# 构建产物
+out/
+dist/
+*.tsbuildinfo
+
+# vitest 运行期临时文件
+vitest.config.ts.timestamp-*
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# 日志
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# ⚠️ build/ 必须提交：
+#   · build/icon.png 是唯一源图兼 CI 输入（gen:icon 依赖本机的 .icns，
+#     CI 上不存在，因此必须把提取结果一并入库）
+#   · build/tray*.png 由 gen:tray 派生，postinstall 会重新生成
+#   · build/entitlements.mac.plist 是 macOS 签名配置
+#   故此处刻意不忽略 build/

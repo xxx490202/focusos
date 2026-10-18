@@ -1,0 +1,103 @@
+appId: com.focusos.app
+productName: FocusOS
+copyright: Copyright © 2026 FocusOS
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+  - '!**/{.eslintrc,.editorconfig,.prettierrc,.gitignore,.DS_Store}'
+
+extraResources:
+  - from: resources/sounds
+    to: sounds
+    filter: ['**/*']
+  - from: resources/backgrounds
+    to: backgrounds
+    filter: ['**/*']
+  # ⚠️ 托盘图标按规范放在 build/ 下，而 electron-builder 默认只把 build/
+  #    当作 buildResources（取 app 图标用），**不会**整目录塞进产物。
+  #    这里显式映射，使其落在
+  #      macOS: FocusOS.app/Contents/Resources/build/tray*.png
+  #      Windows: resources/build/tray*.png
+  #    与主进程 paths.ts 的 buildDir()（process.resourcesPath/build）对齐，
+  #    否则打包后托盘图标会静默加载失败。
+  - from: build
+    to: build
+    filter:
+      - 'tray*.png'
+
+# ============================================================
+# macOS
+# ============================================================
+mac:
+  category: public.app-category.productivity
+  icon: build/icon.png
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+  darkModeSupport: true
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  extendInfo:
+    NSHumanReadableCopyright: Copyright © 2026 FocusOS
+    LSMinimumSystemVersion: '11.0'
+    NSAppleEventsUsageDescription: FocusOS 使用 Apple Events 以支持系统快捷键。
+  # 未配置签名证书时本地构建不签名，避免阻塞开发
+  identity: null
+
+dmg:
+  title: FocusOS ${version}
+  icon: build/icon.png
+  contents:
+    - x: 140
+      y: 200
+      type: file
+    - x: 400
+      y: 200
+      type: link
+      path: /Applications
+
+# ============================================================
+# Windows
+# ============================================================
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  requestedExecutionLevel: asInvoker
+  legalTrademarks: FocusOS
+  # ⚠️ electron-builder 26 起 publisherName 从 win 根级移到了这里；
+  #    留在 win 下会让整个 win 段 schema 校验失败、打包直接中断。
+  signtoolOptions:
+    publisherName: FocusOS
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  allowElevation: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: FocusOS
+  deleteAppDataOnUninstall: false
+  artifactName: ${name}-${version}-win-${arch}-setup.${ext}
+
+portable:
+  artifactName: ${name}-${version}-win-${arch}-portable.${ext}
+
+# ============================================================
+# 通用产物命名
+# ============================================================
+artifactName: ${name}-${version}-${os}-${arch}.${ext}

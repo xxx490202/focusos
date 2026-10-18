@@ -1,0 +1,177 @@
+/* ============================================================
+ * HabitStrip.module.css — 习惯打卡条
+ * ============================================================ */
+
+.root {
+  padding: var(--sp-4);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  background: var(--accent-soft);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.addBtn:hover {
+  background: color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.empty {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--sp-3);
+}
+
+/* ---------------- 单张卡片 ---------------- */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-radius: var(--r-btn);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition: border-color var(--t-hover) ease-out;
+}
+
+/* 已达标：描边换成强调色，扫一眼就知道今天这条完成了 */
+.card[data-done='true'] {
+  border-color: color-mix(in srgb, var(--focus) 45%, transparent);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.cardTitle {
+  min-width: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.streak {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--break);
+}
+
+.cardValue {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.cardValue strong {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.target {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+/* 最近 14 天：小方块从旧到新，实心表示达标 */
+.spark {
+  display: flex;
+  gap: 3px;
+}
+
+.sparkDot {
+  flex: 1;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--divider-strong);
+}
+
+.sparkDot[data-on='true'] {
+  background: var(--focus);
+}
+
+.cardOps {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: 2px;
+}
+
+.mainBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  border-radius: var(--r-btn);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--on-solid);
+  background: var(--accent);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.mainBtn[data-done='true'] {
+  background: var(--focus);
+}
+
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-btn);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  background: var(--surface);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.iconBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.iconBtn[data-danger='true']:hover {
+  color: var(--danger);
+}

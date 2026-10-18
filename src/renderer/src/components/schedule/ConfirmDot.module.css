@@ -1,0 +1,50 @@
+/* ============================================================
+ * ConfirmDot.module.css — 待确认日程右侧的空心圆
+ * ============================================================
+ * 两态：
+ *   · 常态  空心（只有描边）
+ *   · 确认中 实心 + 轻微放大（告诉用户「点到了」，随后整颗消失）
+ * ============================================================ */
+
+.dot {
+  position: relative;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  /* 空心：只有一圈描边 */
+  border: 1.5px solid currentColor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    transform 180ms var(--ease-out),
+    background-color 180ms var(--ease-out);
+}
+
+.dot:hover {
+  transform: scale(1.15);
+}
+
+/* 确认中：变实心 */
+.dot[data-confirming='true'] {
+  background: currentColor;
+  transform: scale(1.2);
+}
+
+/* 实心圆形：常态透明，确认中填充。
+   用内层元素而不是直接改 border，才能做出「从中心涨满」的观感 */
+.fill {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: currentColor;
+  transform: scale(0);
+  transition: transform 180ms var(--ease-out);
+}
+
+.dot[data-confirming='true'] .fill {
+  transform: scale(0.62);
+}

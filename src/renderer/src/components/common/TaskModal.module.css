@@ -1,0 +1,166 @@
+/* ============================================================
+ *  TaskModal.module.css
+ * ============================================================ */
+
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+}
+
+.modal {
+  width: 520px;
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: var(--sp-5);
+  border-radius: var(--r-modal);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: modal-in var(--t-modal) var(--ease-out);
+}
+
+.title {
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-3);
+}
+
+.field label {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  height: 32px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition: border-color var(--t-hover) ease-out;
+  user-select: text;
+}
+
+.field textarea {
+  height: auto;
+  padding: var(--sp-2);
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.clearBtn {
+  flex-shrink: 0;
+  height: 26px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.clearBtn:hover {
+  background: var(--surface-hover);
+}
+
+/* ---------------- 子任务 ---------------- */
+.checkItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: 4px;
+}
+
+.checkItem input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+
+.checkText {
+  flex: 1;
+  min-width: 0;
+}
+
+.checkDel {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text-3);
+}
+
+.checkDel:hover {
+  color: var(--danger);
+  background: var(--surface-hover);
+}
+
+/* ---------------- 操作 ---------------- */
+.ops {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
+}
+
+.btnGhost,
+.btnPrimary {
+  height: 32px;
+  padding: 0 var(--sp-5);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  transition: filter var(--t-hover) ease-out;
+}
+
+.btnGhost {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.btnPrimary {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.btnPrimary:hover {
+  filter: brightness(1.08);
+}

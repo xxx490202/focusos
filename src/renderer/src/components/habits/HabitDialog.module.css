@@ -1,0 +1,134 @@
+/* ============================================================
+ * HabitDialog.module.css — 新建 / 编辑习惯
+ * ============================================================ */
+
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--sp-4);
+  background: var(--scrim);
+}
+
+.modal {
+  width: min(420px, 100%);
+  padding: var(--sp-5);
+  border-radius: var(--r-modal);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: habitDialogIn var(--t-modal) var(--ease-out);
+}
+
+@keyframes habitDialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.title {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.field input {
+  height: 32px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.segGroup {
+  display: flex;
+  gap: var(--sp-1);
+}
+
+.segBtn {
+  flex: 1;
+  height: 30px;
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.segBtn[data-active='true'] {
+  color: var(--on-solid);
+  background: var(--accent);
+  border-color: transparent;
+}
+
+.check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.ops {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+
+.btnGhost,
+.btnPrimary {
+  height: 32px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.btnGhost {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.btnGhost:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.btnPrimary {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.btnPrimary:hover {
+  background: color-mix(in srgb, var(--accent) 84%, #fff);
+}

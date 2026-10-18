@@ -1,0 +1,216 @@
+/* ============================================================
+ *  CalendarPanel.module.css
+ * ============================================================
+ *  今日日程与周视图**共用**这一个面板。
+ *  两者的顶栏高度接近，默认锚点就够用；
+ *  若某页需要微调，由组件传 top / left 覆盖（内联样式优先）。
+ * ============================================================ */
+
+.panel {
+  position: absolute;
+  top: calc(40px + var(--sp-2));
+  left: var(--sp-3);
+  z-index: var(--z-popover);
+  width: 264px;
+  padding: var(--sp-3);
+  border-radius: var(--r-modal);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: picker-in 140ms var(--ease-out);
+}
+
+@keyframes picker-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+}
+
+/* ---------------- 顶部：年 / 月 / 今天 ---------------- */
+/*
+ * ⚠️ 顶部这一行放不下时必须换行，而不是把「今天」挤成两行。
+ *    早先 .today 没有 nowrap / flex-shrink:0，窄条（英文 Today 更宽）下
+ *    会被 flex 压缩，文字折行后被 22px 的高度裁掉（用户截图反馈）。
+ */
+/*
+ * ⭐ 顶部改为**纵向**：年/月两组步进器一行，「今天」独占下一行并居中。
+ *    之前三者挤在同一行用 space-between，面板只有 264px 宽，
+ *    「今天」被挤到换行、又贴着右边缘（用户截图反馈「没有完全显示」）。
+ */
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--divider);
+}
+
+/* 年 / 月两组步进器：窄面板下允许换行，两端对齐 */
+.headFields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.headRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.headLabel {
+  margin-right: 2px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.headValue {
+  min-width: 44px;
+  text-align: center;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+}
+
+.step {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  color: var(--text-2);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.step:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/* 同一个 chevron 图标，朝上时水平翻转即可 */
+.up {
+  transform: rotate(180deg);
+}
+
+.today {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 独占一行：宽度撑满，文字水平居中 */
+  width: 100%;
+  flex-shrink: 0;
+  /* 中文「今天」两个全角字不能折行，英文 Today 也要一行放下 */
+  white-space: nowrap;
+  height: 24px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  background: var(--accent-soft);
+  transition: filter var(--t-hover) ease-out;
+}
+
+.today:hover {
+  filter: brightness(1.05);
+}
+
+/* ---------------- 星期表头 ---------------- */
+.weekHead {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: var(--sp-1);
+}
+
+.weekHeadCell {
+  display: grid;
+  place-items: center;
+  height: 20px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+/* ---------------- 可滚动的月份列表 ---------------- */
+.body {
+  /* ⚠️ 必须 relative：组件里用 offsetTop 定位到光标月 */
+  position: relative;
+  max-height: 248px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.month + .month {
+  margin-top: var(--sp-3);
+}
+
+.monthTitle {
+  padding: var(--sp-1) 0 var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cell {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: 6px;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-1);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.cell:hover {
+  background: var(--surface-hover);
+}
+
+/* 非本月的补位日弱化 */
+.cell[data-out='true'] {
+  color: var(--text-3);
+}
+
+/* ⭐ 选中周的 7 天：蓝色底 + 蓝字 */
+.cell[data-selected='true'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.cell[data-selected='true']:hover {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* 今天：加一圈描边，即使不在选中周也认得出 */
+.cell[data-today='true'] {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+/* 今天且被选中：实心高亮，避免描边与底色打架 */
+.cell[data-today='true'][data-selected='true'] {
+  color: var(--on-solid);
+  background: var(--accent);
+  box-shadow: none;
+}

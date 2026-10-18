@@ -1,0 +1,363 @@
+/* ============================================================
+ *  global.css — reset + 排版 + 滚动条 + 焦点环
+ * ============================================================
+ *  字体栈由 platform.ts 的 fontStack() 在运行时注入到
+ *  document.documentElement.style.fontFamily（不在 CSS 里硬编码
+ *  -apple-system / Segoe UI）。
+ * ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ============================================================
+ *  Windows 窗口控制按钮（− □ ✕）的让位量
+ * ============================================================
+ *  ⭐ 这三个按钮是**系统**画的：它们不属于网页内容，浮在 DOM 之上，
+ *     z-index / padding 都管不到它们 —— 只能靠 CSS 把自己往左挪来避让。
+ *     Electron 开了 titleBarOverlay 后会注入 CSS 环境变量：
+ *       · env(titlebar-area-x)     —— 可用区左边界
+ *       · env(titlebar-area-width) —— 可用区宽度（已扣除那三个按钮）
+ *     因此右侧该空出的宽度 = 窗口宽 − (x + 可用宽)。
+ *
+ *  ⚠️ 用 env() 而不是写死 138px：按钮宽度随系统 DPI / Win10-Win11 /
+ *     语言环境变化，写死值会在某些机器上留出一条空带或仍然重叠。
+ *
+ *  ⚠️ env() 取不到时（macOS / 未开 overlay）回退成 0：
+ *     x 回退 100vw、width 回退 0 → 100vw − 100vw − 0 = 0，与原来一致。
+ * ============================================================ */
+:root {
+  --wco-right: calc(100vw - env(titlebar-area-x, 100vw) - env(titlebar-area-width, 0px));
+}
+
+/* ============================================================
+ *  窗口拖拽区
+ * ============================================================
+ *  macOS 用 titleBarStyle: 'hiddenInset'，没有原生标题栏，
+ *  只能靠 `-webkit-app-region: drag` 划出可拖动区域。
+ *
+ *  用法：给容器加 data-drag="1"，容器内的交互控件自动退出拖拽区。
+ *  目前的可拖面：左侧侧栏（整块）+ 内容区每个页面的顶栏。
+ *  用户实测反馈「只有侧栏能拖、别处不行」—— 因此顶栏也必须成为拖拽面。
+ *
+ *  ⚠️ -webkit-app-region 是**继承属性**：父元素设为 drag 后，
+ *     子元素默认也是 drag，必须显式 no-drag 才能点击。
+ *     下面这条规则一次性覆盖所有常见交互元素，避免逐个组件漏配。
+ * ============================================================ */
+[data-drag='1'] {
+  -webkit-app-region: drag;
+}
+
+[data-drag='1'] button,
+[data-drag='1'] input,
+[data-drag='1'] textarea,
+[data-drag='1'] select,
+[data-drag='1'] a,
+[data-drag='1'] label,
+[data-drag='1'] [role='button'],
+[data-drag='1'] [role='menu'],
+[data-drag='1'] [contenteditable='true'] {
+  -webkit-app-region: no-drag;
+}
+
+/* 拖拽区内的文字不应被选中（拖动时会顺手选中一片文字，很脏） */
+[data-drag='1'] {
+  user-select: none;
+}
+
+/* ============================================================
+ *  左栏收起 → 内容区顶栏的左侧让位量
+ * ============================================================
+ *  ⚠️ 现在是 0：收起后侧栏仍然占据一条 --chrome-strip-w 的真实宽度
+ *     （见 tokens.css 的说明 —— 那颗浮动按钮的 no-drag 命中区需要它），
+ *     内容区自然从这条带之后开始，顶栏不需要再额外推一次。
+ *     留着这个令牌与下面这条规则是为了给「内容区被顶栏压住」这类问题
+ *     保留同一个调节点，但**不要**再给它赋非零值：那会让顶栏控件被推两遍。
+ * ============================================================ */
+[data-sidebar='collapsed'] {
+  --hdr-inset: var(--chrome-strip-w);
+}
+
+/* ============================================================
+ *  收起态：内容区里的拖拽区必须退出
+ * ============================================================
+ *  收起后内容区从 x=0 铺满整窗（用户要求），顶栏因此盖住左上角那颗
+ *  「展开左栏」按钮 —— 而它的 no-drag 只在**同一条拖拽链**里能被挖出来，
+ *  顶栏是另一条，挖不掉：真实鼠标点击会被当成拖窗口吞掉
+ *  （用户实测反馈；合成点击测不出来）。
+ *
+ *  所以收起态干脆让内容区**整体退出拖拽区**：
+ *    · 窗口拖动由侧栏那条窗口控件带（红绿灯右侧、顶栏同高）承担；
+ *    · 按钮在带内，它自己的 no-drag 把按钮那一格从带里挖出来 → 可点。
+ *  展开态不受影响：顶栏/专注页照旧可拖窗口。
+ * ============================================================ */
+[data-sidebar='collapsed'] main [data-drag] {
+  -webkit-app-region: no-drag;
+}
+
+/* ============================================================
+ *  页面顶栏与红绿灯同线，靠的是**高度**而不是偏移
+ * ============================================================
+ *  红绿灯（以及贴在它右侧的「收起左栏」按钮）的垂直中心是
+ *  --traffic-center-y（macOS 20 / Windows 16，主进程实测注入）。
+ *  --hdr-h 被定义为它的两倍 → 顶栏内容 align-items: center 后
+ *  上下间距相等，中心正好落在这条线上。
+ *
+ *  ⚠️ 这里**不要**再给顶栏加 padding-bottom / padding-top 之类的偏移：
+ *     那会把内容推成「上窄下宽」，用户一眼就能看出来
+ *     （踩过：曾用 padding-bottom:8px 上移内容，被反馈「按键上下间距不一致」）。
+ * ============================================================ */
+
+body {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  letter-spacing: 0;
+  background: var(--bg);
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* 桌面应用不应出现整页橡皮筋滚动 */
+  overscroll-behavior: none;
+  user-select: none;
+  cursor: default;
+}
+
+/* 所有数字必须等宽，否则倒计时/统计数字会左右跳动 */
+input,
+textarea,
+button,
+select,
+.mono,
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: default;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: var(--text-1);
+  background: transparent;
+  border: none;
+  outline: none;
+  user-select: text;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-3);
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ---------------- 焦点环 ---------------- */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-btn);
+}
+
+/* ---------------- 滚动条（两平台统一自定义，不用系统默认宽度） ---------------- */
+::-webkit-scrollbar {
+  width: var(--scrollbar-w, 10px);
+  height: var(--scrollbar-w, 10px);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--divider-strong);
+  border-radius: var(--r-pill);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-3);
+  background-clip: content-box;
+  border: 3px solid transparent;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ---------------- 通用工具类 ---------------- */
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 文字宽度不依赖固定值，flex/grid + min-width:0 保证两平台字体差异不破坏布局 */
+.truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 列表项 stagger 进场 */
+@keyframes item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 沉浸淡入：blur(8px) → 0 */
+@keyframes focus-countdown-in {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 阶段完成：屏幕边缘泛一圈阶段色光晕 2秒 */
+@keyframes phase-glow {
+  0% {
+    box-shadow: inset 0 0 0 0 var(--glow-color, transparent);
+  }
+  35% {
+    box-shadow: inset 0 0 90px 12px var(--glow-color, transparent);
+  }
+  100% {
+    box-shadow: inset 0 0 0 0 transparent;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------------- 空状态 ---------------- */
+.emptyRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: var(--sp-8) var(--sp-6);
+  text-align: center;
+}
+
+.emptyIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--sp-2);
+  border-radius: var(--r-card);
+  color: var(--text-3);
+  background: var(--surface-2);
+}
+
+.emptyTitle {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--text-1);
+}
+
+.emptyDesc {
+  max-width: 320px;
+  font-size: var(--fs-body);
+  color: var(--text-3);
+}
+
+.emptyAction {
+  margin-top: var(--sp-3);
+  height: 32px;
+  padding: 0 var(--sp-5);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  /* ⚠️ 不要写死 #fff —— 用主题令牌，浅/深色下都保证与强调色达到 4.5:1 */
+  color: var(--on-solid);
+  background: var(--accent);
+  transition: filter var(--t-hover) ease-out;
+}
+
+.emptyAction:hover {
+  filter: brightness(1.08);
+}
+
+.emptyAction:active {
+  transform: scale(0.97);
+}

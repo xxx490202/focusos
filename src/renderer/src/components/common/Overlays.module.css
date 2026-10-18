@@ -1,0 +1,480 @@
+/* ============================================================
+ *  Overlays.module.css
+ * ============================================================ */
+
+.mask {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  background: var(--scrim);
+  backdrop-filter: blur(6px);
+}
+
+.modal {
+  width: 440px;
+  padding: var(--sp-5);
+  border-radius: var(--r-modal);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: modal-in var(--t-modal) var(--ease-out);
+}
+
+/* ---------------- Onboarding ---------------- */
+.steps {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  margin-bottom: var(--sp-5);
+}
+
+.stepDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--divider-strong);
+  transition: background-color var(--t-panel) ease;
+}
+
+.stepDot[data-on='true'] {
+  background: var(--accent);
+}
+
+.stepBody {
+  animation: item-in 220ms var(--ease-out);
+}
+
+.title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: var(--sp-2);
+}
+
+.desc {
+  font-size: var(--fs-body);
+  color: var(--text-3);
+  margin-bottom: var(--sp-4);
+}
+
+.descCenter {
+  margin-top: var(--sp-2);
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.themePick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+}
+
+.themeBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-2);
+  border-radius: var(--r-card);
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition:
+    border-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.themeBtn:hover {
+  color: var(--text-1);
+  border-color: var(--divider-strong);
+}
+
+.themeBtn[data-active='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.limitPick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+}
+
+.limitBtn {
+  height: 48px;
+  border-radius: var(--r-card);
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition:
+    border-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.limitBtn[data-active='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.taskInput {
+  width: 100%;
+  height: 38px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  user-select: text;
+}
+
+.taskInput:focus {
+  border-color: var(--accent);
+}
+
+.ops {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-5);
+}
+
+.opsRight {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+/*
+ * 二次确认弹窗专用：让「取消 / 删除」作为**一组居中**。
+ * ⚠️ 不要直接改 .ops —— 任务模态框与快捷键面板都复用它，
+ *    那里需要 space-between（左侧放「删除」，右侧放主操作）。
+ *    所以这里只加一个修饰类，作用范围严格限定在确认弹窗。
+ */
+.opsCenter {
+  justify-content: center;
+}
+
+/* 两个按钮等宽，视觉上完全对称（用户要求「两个按键框大小一致」） */
+.opsCenter .btnGhost,
+.opsCenter .btnPrimary,
+.opsCenter .btnDanger {
+  min-width: 96px;
+}
+
+.skip,
+/*
+ * ⚠️ 三个按钮必须共用同一套几何样式。
+ *    早先只写了 .btnGhost / .btnPrimary，.btnDanger 只有颜色 ——
+ *    于是确认弹窗里的「删除」是个没有圆角、没有内边距的裸色块，
+ *    和旁边的「取消」大小不一、文字也不居中（用户截图反馈）。
+ *    min-width + justify-content 保证两个按钮**等宽且文字居中**。
+ */
+.btnGhost,
+.btnPrimary,
+.btnDanger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 76px;
+  height: 32px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  transition:
+    filter var(--t-hover) ease-out,
+    background-color var(--t-hover) ease-out;
+}
+
+.skip {
+  padding: 0;
+  color: var(--text-3);
+}
+
+.skip:hover {
+  color: var(--text-2);
+}
+
+.btnGhost {
+  color: var(--text-2);
+  background: var(--surface-2);
+}
+
+.btnGhost:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.btnPrimary {
+  color: var(--on-solid);
+  background: var(--accent);
+}
+
+.btnPrimary:hover {
+  filter: brightness(1.08);
+}
+
+/* ---------------- 快捷键面板 ---------------- */
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-4);
+}
+
+.panelHead .title {
+  margin-bottom: 0;
+}
+
+.closeBtn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-btn);
+  color: var(--text-3);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.closeBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.groupTitle {
+  margin: var(--sp-4) 0 var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.groupTitle:first-of-type {
+  margin-top: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemLabel {
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+}
+
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--surface-2);
+  border: 1px solid var(--divider-strong);
+  box-shadow: 0 1px 0 var(--divider-strong);
+}
+
+.foot {
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--divider);
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+/* ---------------- Toast ---------------- */
+.toastWrap {
+  position: fixed;
+  bottom: var(--sp-5);
+  /*
+   * ⭐ 在**内容区**里居中，而不是整个窗口。
+   *    整窗居中会偏左 —— 左侧还有 220px 侧栏，提示会压在侧栏边缘上
+   *    （用户实测反馈「不要整个 app 页面居中，只在左栏右侧区域居中」）。
+   *    --content-left 由 App.module.css 按 展开 / 收起 / 专注窗口 三种情况给出。
+   */
+  left: calc(50% + var(--content-left, 0px) / 2);
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 8px 16px;
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  color: var(--text-1);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: toast-in 200ms var(--ease-out);
+  pointer-events: auto;
+  cursor: default;
+}
+
+/* 带操作按钮时右侧留白小一点，让按钮更靠边 */
+.toastText {
+  cursor: default;
+}
+
+/* 「撤销」这类操作按钮 */
+.toastAction {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: var(--r-tag);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.toastAction:hover {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.toast[data-kind='success'] {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+}
+
+.toast[data-kind='error'] {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+}
+
+/* ============================================================
+ *  任务卡右键菜单
+ * ============================================================
+ *  position: fixed + 点击点的 clientX/clientY —— 直接落在指针位置。
+ *  视口夹取在组件里用真实尺寸算，这里只负责观感。
+ * ============================================================ */
+.contextMenu {
+  position: fixed;
+  z-index: var(--z-popover);
+  min-width: 176px;
+  padding: var(--sp-1);
+  border-radius: var(--r-btn);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  box-shadow: var(--shadow-lg);
+  animation: ctx-in 120ms var(--ease-out);
+}
+
+@keyframes ctx-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contextMenu {
+    animation: none;
+  }
+}
+
+.contextTitle {
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: 2px;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+.contextItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  height: 30px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-tag);
+  font-size: var(--fs-body);
+  color: var(--text-1);
+  text-align: left;
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.contextItem:hover {
+  background: var(--surface-hover);
+}
+
+.contextItem[data-danger='true'] {
+  color: var(--danger);
+}
+
+.contextItem[data-danger='true']:hover {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+/* 不可用项（例如「当前默认」）：能看见、点不动，也不该有 hover 高亮 */
+.contextItem:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.contextItem:disabled:hover {
+  background: transparent;
+}
+
+.contextSep {
+  height: 1px;
+  margin: var(--sp-1) var(--sp-2);
+  background: var(--divider);
+}
+
+/* 确认对话框里的危险按钮（几何样式与 .btnGhost / .btnPrimary 共用，见上方块） */
+.btnDanger {
+  color: var(--on-solid);
+  background: var(--danger);
+}
+
+.btnDanger:hover {
+  filter: brightness(1.08);
+}
+
+.btnGhost:disabled,
+.btnPrimary:disabled,
+.btnDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

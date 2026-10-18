@@ -1,0 +1,143 @@
+/* ============================================================
+ *  tokens.css — 双主题设计令牌（与主题无关的结构性令牌）
+ * ============================================================
+ *  规则：组件只消费语义令牌（--surface / --text-1），绝不写死色值。
+ *  颜色类令牌（--bg / --text-1 …）定义在 themes.css 的
+ *  [data-theme="light"|"dark"] 覆盖块中，切换主题时组件零改动。
+ * ============================================================ */
+
+:root {
+  /* ---------- 圆角 ---------- */
+  --r-card: 12px;
+  --r-btn: 8px;
+  --r-tag: 6px;
+  --r-modal: 14px;
+  --r-pill: 999px;
+
+  /* ---------- 8px 栅格间距 ---------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 28px;
+  --sp-8: 32px;
+
+  /* ---------- 字号（桌面端偏小观感） ---------- */
+  --fs-h1: 20px;
+  --fs-h2: 17px;
+  --fs-body: 13px;
+  --fs-sm: 12px;
+  --fs-xs: 11px;
+
+  /* ---------- 动效 ---------- */
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --t-hover: 100ms;
+  --t-panel: 160ms;
+  --t-modal: 200ms;
+  --t-pop: 120ms;
+  --t-theme: 200ms;
+
+  /* ---------- 布局 ---------- */
+  --sidebar-w: 220px;
+  --titlebar-h: 40px;
+  /* 红绿灯占位（垂直高度）由 platform.ts 的 windowChrome().trafficLightPad
+     经 App.tsx 注入；Windows 走 titleBarOverlay 不需要留白。
+     这里的 0px 是兜底值，绝不要写成 78px —— 那会让侧栏顶部出现一段空档。
+     ⚠️ 该留白只由 Sidebar 的 .root 消费，不要加到 .workbench 上。 */
+  --traffic-pad: 0px;
+  /* 红绿灯最右缘 / 垂直中心（同样由 App.tsx 注入，Windows 为 0 / 16） */
+  --traffic-right: 0px;
+  --traffic-center-y: 16px;
+
+  /* ---------- 窗口顶部控件条 ----------
+     「收起左栏」按钮与内容区顶栏里的控件共用同一套尺寸：
+       · 控件到红绿灯的间距 == 控件到侧栏右边框的间距（用户明确要求）
+       · 因此收起态侧栏宽度 = --traffic-right + --hdr-gap × 2 + --hdr-btn
+     ⚠️ 改 --hdr-gap 会同时改变收起宽度与顶栏控件位置，两者必须一起看。 */
+  --hdr-btn: 26px;
+  --hdr-gap: 12px;
+  /*
+   * ⭐ 收起态「窗口控件带」宽度 —— 红绿灯右侧到顶栏右缘的一条竖带，
+   *    收起后侧栏仍然按这个宽度占据**真实布局宽度**（不是归零）。
+   *    原因：Chromium 的窗口拖拽区是「后出现的覆盖先出现的」，
+   *    收起后内容区顶栏（data-drag）会铺到 x=0，覆盖住那颗浮动按钮的
+   *    no-drag 区域 → 真实鼠标点击被当成「拖窗口」吞掉，按钮按不动
+   *    （用户实测反馈；CDP 合成点击不经过窗口服务器，早期测不出来）。
+   *    现在内容区从这条带之后开始，顶栏盖不到按钮，点击恢复。
+   *    专注页的背景图层按同一个值往左多铺（见 FocusView.module.css）。
+   */
+  --chrome-strip-w: calc(var(--traffic-right, 0px) + var(--hdr-gap) * 2 + var(--hdr-btn));
+  /*
+   * 页面顶栏高度。
+   * ⭐ 取「红绿灯线」的两倍：控件在栏内 align-items: center →
+   *    上下间距自然相等，且内容中心恰好落在 --traffic-center-y 上，
+   *    与红绿灯、「收起/展开左栏」按钮同一条水平线。
+   *    （macOS 2×20 = 40px；Windows 2×16 = 32px，与 overlay 高度一致。）
+   *    ⚠️ 这个恒定关系是顶栏对齐的全部机制，别再单独改高度或加偏移内边距。
+   */
+  --hdr-h: calc(var(--traffic-center-y, 20px) * 2);
+  /*
+   * ⭐ 左栏收起后，侧栏本体宽度归零（背景图从此铺满整个窗口），
+   *    但「展开左栏」按钮仍浮在原来的坐标上 —— 它压在内容区左上角。
+   *    内容区的顶栏必须按这个值把左侧内容往右推，否则按钮会盖住顶栏控件。
+   *    展开态为 0（按钮在侧栏自己的地盘里，不需要让位）。
+   *    实际赋值见 global.css 的 [data-sidebar='collapsed']。
+   */
+  --hdr-inset: 0px;
+
+  /* ---------- 滚动条宽度 ----------
+     ⭐ 这是**布局尺寸**，不只是外观：任何「外层表头 + 内层滚动区」的结构，
+        只要滚动区被这条滚动条吃掉宽度，表头就会和内容错列（用户截图反馈）。
+        因此滚动条宽度必须由 global.css 的 ::-webkit-scrollbar 与本令牌共用，
+        且滚动区要用 scrollbar-gutter: stable 常驻这条留白，
+        让「有没有滚动条」都得到同一个内容宽度。 */
+  --scrollbar-w: 10px;
+
+  /* ---------- 品牌 ----------
+     侧栏底部字标「xyc design.」里的 design 颜色（取自用户给的参照图采样值
+     #DD7662）。它与主题无关（两套主题下都是这抹珊瑚红），
+     因此放在结构性令牌里，而不是 themes.css 的覆盖块中。 */
+  --wordmark-accent: #dd7662;
+
+  /* ---------- 层级 ---------- */
+  --z-content: 1;
+  --z-sticky: 10;
+  --z-popover: 100;
+  --z-modal: 200;
+  /*
+   * ⭐ 窗口级控件（「收起/展开左栏」按钮）。
+   *    它是**窗口控件**而不是页面内容 —— 与红绿灯同一条线、永远可见。
+   *    因此必须高于一切模态遮罩：引导层 / 任务弹窗打开时点它也得有反应
+   *    （用户实测反馈「点击展开左栏按键没有反应」，根因就是被引导层遮罩盖住）。
+   */
+  --z-chrome: 250;
+  --z-toast: 300;
+}
+
+/* 平台注入：主进程根据 windowChrome() 写这里的实际值 */
+:root[data-platform='win32'] {
+  --traffic-pad: 0px;
+}
+
+/* ============================================================
+ *  减少动态效果：全部动画降为 0ms
+ * ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-hover: 0ms;
+    --t-panel: 0ms;
+    --t-modal: 0ms;
+    --t-pop: 0ms;
+    --t-theme: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

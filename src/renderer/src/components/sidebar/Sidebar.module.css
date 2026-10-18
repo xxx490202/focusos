@@ -1,0 +1,441 @@
+/* ============================================================
+ *  Sidebar.module.css
+ * ============================================================
+ *  Windows 侧栏毛玻璃（acrylic）与 macOS vibrancy 强度不同，
+ *  靠 --sidebar-alpha 叠加透明度补偿，保证两平台观感一致。
+ * ============================================================ */
+
+.root {
+  /* 收起键要绝对定位到红绿灯右侧，因此这里必须有定位上下文 */
+  position: relative;
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  /*
+   * ⭐ 侧栏是窗口拖拽区之一（按钮/输入框除外，见下方 no-drag 规则）。
+   *    macOS 用 hiddenInset 没有原生标题栏，若不给 -webkit-app-region: drag，
+   *    用户将完全无法移动窗口。
+   *    用户实测反馈「只有侧栏能拖、别处拖不动」—— 因此内容区的每个页面顶栏
+   *    也加了 data-drag（见 global.css 的 [data-drag] 规则），
+   *    这里保留侧栏这一块，作为最顺手的主拖拽面。
+   */
+  -webkit-app-region: drag;
+  /*
+   * ⭐ 顶部内边距必须同时让开两样东西：
+   *      1) 红绿灯（垂直占位 --traffic-pad，macOS 44 / Windows 0）
+   *      2) 与红绿灯同行的「收起左栏」按钮
+   *         它的下沿 = --traffic-center-y + --hdr-btn/2
+   *    取两者较大值，于是品牌区永远落在按钮下方，两个平台都不会重叠。
+   */
+  padding-top: max(
+    var(--traffic-pad, 0px),
+    calc(var(--traffic-center-y, 16px) + var(--hdr-btn) / 2 + var(--sp-2))
+  );
+  background: var(--surface);
+  border-right: 1px solid var(--divider);
+  overflow-y: auto;
+}
+
+/* 平台没有提供 vibrancy/acrylic 时保持纯色（--surface） */
+:global(:root[data-platform='win32']) .root {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+/* ---------------- 品牌 ---------------- */
+/* 品牌条已不再包含收起键（按钮改为绝对定位，见 .collapseBtn），
+   drag 由 .root 继承下来，这里只负责排版。 */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-2) var(--sp-3);
+}
+
+/* 侧栏内所有可交互元素必须显式退出拖拽区，否则点不动 */
+.root button,
+.root input,
+.root a {
+  -webkit-app-region: no-drag;
+}
+
+.brandMark {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 16px;
+}
+
+.brandMark span {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* 三点标记，与应用图标同一视觉语言 */
+.brandMark span:nth-child(1) {
+  height: 8px;
+}
+.brandMark span:nth-child(2) {
+  height: 13px;
+}
+.brandMark span:nth-child(3) {
+  height: 11px;
+}
+
+.brandName {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-1);
+}
+
+/* ---------------- 操作 ---------------- */
+.actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-1);
+}
+
+.newBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--on-solid);
+  background: var(--accent);
+  transition: filter var(--t-hover) ease-out;
+}
+
+.newBtn:hover {
+  filter: brightness(1.08);
+}
+
+.newBtn:active {
+  transform: scale(0.97);
+}
+
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: var(--r-btn);
+  color: var(--text-2);
+  background: var(--surface-2);
+  transition: background-color var(--t-hover) ease-out;
+}
+
+.iconBtn:hover,
+.iconBtn[aria-pressed='true'] {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/* ---------------- 搜索 ---------------- */
+.searchBox {
+  padding: 0 var(--sp-1) var(--sp-2);
+}
+
+.searchBox input {
+  width: 100%;
+  height: 30px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--divider);
+  transition: border-color var(--t-hover) ease-out;
+}
+
+.searchBox input:focus {
+  border-color: var(--accent);
+}
+
+/* ---------------- 导航 ---------------- */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 32px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-btn);
+  font-size: var(--fs-body);
+  color: var(--text-2);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.navItem:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.navItem:active {
+  transform: scale(0.99);
+}
+
+.navItem[data-active='true'] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* 文字宽度不依赖固定值 */
+.navLabel {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.navBadge {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  background: var(--surface-hover);
+}
+
+.navItem[data-active='true'] .navBadge {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.spacer {
+  flex: 1;
+  width: 100%;
+  min-height: 24px;
+  /*
+   * ⭐ 侧栏底部这片空白也是窗口拖拽区。
+   *    用户反馈「窗口很难用鼠标拖拽移动」—— 只给品牌条当把手时命中面积太小，
+   *    这里把最大的空白区域也变成拖拽把手，随手一拖就能移动窗口。
+   */
+  -webkit-app-region: drag;
+}
+
+/* ============================================================
+ *  底部字标：xyc design.
+ * ============================================================
+ *  用户给的参照图是「粗黑体 xyc + 珊瑚红衬线斜体 design + 深色圆点」，因此：
+ *    · xyc    → 系统无衬线，用 800 字重 + 收紧字距压出粗黑体感
+ *    · design → 衬线斜体（Georgia 系列），高对比度的斜体衬线
+ *    · .      → 与 xyc 同色（原图里那个圆点就是深色的），做成一个稍大的圆点感
+ *
+ *  ⚠️ 颜色只消费语义令牌 + 一条 --wordmark-accent（见 tokens.css），不要在这里
+ *     再写死别的色值；xyc 与句点必须跟随主题，否则深色模式下会消失。
+ *  ⚠️ user-select: none —— 这块落在窗口拖拽区里，误选中会拖出蓝色高亮。
+ * ============================================================ */
+/*
+ * 字标 = 设置入口。
+ * ⭐ 几何与 .navItem 完全一致（同高 32px、同样的左右内边距），
+ *    因此最左侧那颗设置图标与上方导航项的图标落在同一条竖线上。
+ */
+.signature {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 32px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-btn);
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.signature:hover {
+  background: var(--surface-hover);
+}
+
+/*
+ * 选中态只给淡淡的同色底，不改文字颜色 ——
+ * 「xyc」与红色的「design」是品牌签名，配色必须始终保持不变。
+ */
+.signature[data-active='true'] {
+  background: var(--accent-soft);
+}
+
+/* 字标本体：xyc 与 design 之间按基线对齐 */
+.sigText {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  min-width: 0;
+}
+
+.sigSans {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', Arial, sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--text-1);
+}
+
+.sigSerif {
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', 'Songti SC', serif;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  /* 珊瑚红取自定义令牌，便于与主题一起调整 */
+  color: var(--wordmark-accent);
+}
+
+/* 句点与 xyc 同色，稍微加大一点，做出原图里那个圆点的分量感 */
+.sigDot {
+  font-style: normal;
+  font-size: 1.05em;
+  color: var(--text-1);
+}
+
+/* ============================================================
+ *  收起 / 展开左侧导航栏
+ * ============================================================
+ *  ⭐ 位置**恒定**：展开态与收起态都在同一个坐标 —— 红绿灯右侧。
+ *     用户明确要求「按键位置不要变，就一直放在红黄绿右边，
+ *     按键和红黄绿之间的间距和左栏右框的间距保持一致」。
+ *
+ *     · left = --traffic-right + --hdr-gap
+ *       （macOS = 65 + 12 = 77px；Windows 无红绿灯 → 0 + 12 = 12px）
+ *     · 垂直方向与红绿灯同心：top = --traffic-center-y - --hdr-btn/2
+ *       （macOS = 20 - 13 = 7px）
+ *
+ *     收起态下侧栏宽度是 0（左栏整条消失、背景图铺满窗口），
+ *     而 .root 仍贴在窗口最左侧，所以这两个偏移量算出来的屏幕坐标不变
+ *     —— 正是「按键依旧在那边，不变不动也不隐藏」。
+ *     它让出的横向空间另由 --hdr-inset 表达，交给内容区顶栏消费。
+ *
+ *  ⚠️ 这几个值全部来自 platform.ts 的 windowChrome()（实测值），
+ *     不要在 CSS 里写死像素 —— Windows 上会算错。
+ * ============================================================ */
+
+.collapseBtn {
+  position: absolute;
+  left: calc(var(--traffic-right, 0px) + var(--hdr-gap));
+  top: calc(var(--traffic-center-y, 16px) - var(--hdr-btn) / 2);
+  /*
+   * ⭐ 窗口控件，不是页面内容 —— 必须高于一切模态遮罩（引导层 / 任务弹窗）。
+   *    否则引导层一打开，这颗按钮就被遮罩吃掉点击（用户实测反馈）。
+   */
+  z-index: var(--z-chrome);
+  display: grid;
+  place-items: center;
+  width: var(--hdr-btn);
+  height: var(--hdr-btn);
+  flex-shrink: 0;
+  border-radius: var(--r-btn);
+  color: var(--text-3);
+  transition:
+    background-color var(--t-hover) ease-out,
+    color var(--t-hover) ease-out;
+}
+
+.collapseBtn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/* 收起态把图标水平镜像：竖线仍贴在「收起的那一侧」 */
+.root[data-collapsed='true'] .collapseBtn svg {
+  transform: scaleX(-1);
+}
+
+/*
+ * 收起态下这颗按钮是**浮在内容区之上**的（底下可能是背景照片、
+ * 也可能是页面顶栏），裸图标在任何底色上都可能看不清。
+ * 因此给它一层跟随主题的半透明毛玻璃底：底色与文字色同出一套令牌，
+ * 无论主题深浅、背景明暗都必然可读。
+ */
+.root[data-collapsed='true'] .collapseBtn {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-2);
+}
+
+.root[data-collapsed='true'] .collapseBtn:hover {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text-1);
+}
+
+/* ============================================================
+ *  收起态 —— 左栏**整条消失**，只留那颗按钮
+ * ============================================================
+ *  ⭐ 用户明确要求：收起后左栏完全隐藏，背景图占满整个 app 框，
+ *     「展开左栏」按钮仍在原来那个坐标（红绿灯右侧）上，
+ *     **不动、不隐藏**。
+ *
+ *     所以这里做的是：把 .root 的宽 / 内边距 / 右边框 / 底色全部归零，
+ *     除 .collapseBtn 之外的所有子节点 display: none。
+ *     按钮是 absolute 定位、以 .root 左上角为原点，
+ *     而 .root 本身仍贴在窗口最左侧（x=0），因此它的屏幕坐标完全不变。
+ *
+ *  ⚠️ overflow 必须是 visible：0 宽的盒子若还是 overflow-y: auto，
+ *     会把浮在 left:77px 处的按钮裁掉（或撑出一条滚动条）。
+ *  ⚠️ win32 那条规则（:root[data-platform] .root）特异性更高，
+ *     必须连同平台选择器再写一遍才能把底色真正清掉。
+ * ============================================================ */
+.root[data-collapsed='true'],
+:global(:root[data-platform='win32']) .root[data-collapsed='true'] {
+  /*
+   * ⭐⭐ 收起后侧栏**保留一条真实盒子**（红绿灯右侧的一小条），
+   *      而不是把宽度归零 —— 这是「收起后按钮点不动」的根因所在。
+   *
+   *      「收起/展开左栏」按钮的 -webkit-app-region: no-drag 只有在
+   *      它仍落在祖先的盒子里、且祖先处于文档流时才会被 Chromium 采纳。
+   *      早先 width: 0 让按钮浮在父盒之外 → no-drag 区域整体被丢弃 →
+   *      真实鼠标点击落到顶栏的窗口拖拽区上，被当成「拖窗口」吃掉，
+   *      于是按钮毫无反应（用户实测反馈）。
+   *      ⚠️ CDP 合成点击不经过窗口服务器这条路径，所以早期自动化验证发现不了。
+   *
+   *      宽度取 --chrome-strip-w（红绿灯右侧到顶栏右缘那条控件带）：
+   *      内容区从这条带之后开始，顶栏就盖不到按钮了。
+   *      专注页的背景图层按同一个值往左多铺，照片仍铺满整个窗口。
+   *
+   *   · -webkit-app-region: no-drag —— 空档处不另建拖拽区，
+   *     否则左栏这一竖条会吃掉下层内容的点击。
+   *   · 除按钮外的子节点仍然 display: none（见下一条规则），视觉上完全隐藏。
+   */
+  width: var(--chrome-strip-w);
+  /* 只占顶栏高度：这一条是窗口控件带（红绿灯右侧），
+     高度不能铺满 —— 铺满会把内容区左列的点按当成拖窗口。 */
+  height: var(--hdr-h);
+  min-width: 0;
+  padding: 0;
+  border-right: none;
+  background: transparent;
+  overflow: visible;
+}
+
+/* 除「展开左栏」按钮外的一切都隐藏 —— 这才是「完全隐藏左栏」 */
+.root[data-collapsed='true'] > *:not(.collapseBtn) {
+  display: none;
+}

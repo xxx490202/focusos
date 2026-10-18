@@ -1,0 +1,84 @@
+/* ============================================================
+ * TimeWheelPicker.module.css — 专注页分/秒选择弹窗
+ * ============================================================
+ * ⚠️ 弹窗会压在背景照片上，因此底色必须**不透明**（--surface），
+ *    不能像专注页其它元件那样用半透明玻璃感 —— 否则数字糊在照片里看不清。
+ *
+ * ⚠️ z-index 不能省：专注页的 .center 带 z-index: var(--z-content)，
+ *    本弹窗是它的**兄弟**节点。不给 z-index 会被整层盖住，
+ *    表现为「看得见但点不动、滚不动」（命中测试全部落到 .center 上）。
+ * ============================================================ */
+
+.panel {
+  position: fixed;
+  z-index: var(--z-popover);
+  border-radius: var(--r-card);
+  background: var(--surface);
+  border: 1px solid var(--divider-strong);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.28),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  /* 弹窗自身不参与窗口拖拽区 */
+  -webkit-app-region: no-drag;
+  animation: wheel-in var(--t-pop) var(--ease-out);
+}
+
+@keyframes wheel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.list {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  /* 内容超出可视高度时留出滚动条宽度，避免数字左右跳动 */
+  scrollbar-gutter: stable;
+}
+
+/* 细滚动条：0–60 有 61 行，得让用户一眼看出「这里可以滚」 */
+.list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--divider-strong);
+}
+
+.list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-2);
+  background: transparent;
+  transition: background-color var(--t-hover) ease-out, color var(--t-hover) ease-out;
+}
+
+.item:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+/* 当前值：常驻高亮，方便一眼找到「现在是多少」 */
+.item[data-active='true'] {
+  color: var(--text-1);
+  font-weight: 700;
+  background: var(--focus-soft);
+}
